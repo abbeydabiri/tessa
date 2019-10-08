@@ -1,0 +1,105 @@
+High Level Architecture
+
+Components
+    - Key Management
+        (Custodial - Non Custodia)   
+    - Database Structure
+    -
+
+
+
+
+
+
+User - 
+    Sign Up
+    Receive OTP
+    Check Balance/Transactions
+    Receive/Send Digital Currency
+    
+    
+Agent -
+    Onboard Users
+
+
+Bank -
+    Guarantee Funds
+
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+1 - Data & User Privacy
+
+2 - Payment and Key Management Layer
+    Loyalty Tokens/Points
+    Token Based Payments
+    Fiat Based Payments
+
+3 - Access & Credential Management
+4 - Authentication Management
+4 - Receipt and Log Management
+
+5 - Protocol Negotiation Layer
+    NFC
+    USSD
+    HTTPS
+    QR Code
+    Barcode
+
+
+Technology Stack
+    Frontend: HTML5, CSS3, VueJS
+    Core API: Golang, Web Services, Blockchain (Ethereum)
+    Security:  ECDSA (for Ethreum Public-key cryptography), RSA (JWT for Session Management) BCRYPT (for Custodial & Non Custodial KeyManagement)
+    Server: Golang (HTTPS for API, RPC for Blockchain)
+    Mobile SDK: Android Studio, IOS XCode
+    Database: PostgreSQL (for cloud), Sqlite3 (for mobile) 
+    Blockchain: Solidity, Ethereum (permissioned)
+    Others: Github, Project Management tool
+    DevOps: Docker Swarm / Kubernetes
+    OS: Windows / Linux / OSX
+
+
+
+    Main Components
+     Wallets
+        Android / IOS / Web
+
+     
+
+
+Structure of System
+    Database Architecture
+    Application Architeture
+    Layers Architecture
+    Application Flow
+    Navigation
+    Security Architecture
+    Technology Architecture
+
+
+
+    Systems
+    Products
+    Services
+    Processes
+
+
+    Platforms
+    Systems
+    Products
+    Services
+    Processes
+
+    Commercial
+    Legal
+    Enviromental
+    Security
+    Safety
+    Technical Risks
+    Issues
+    Assumptions

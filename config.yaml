@@ -1,0 +1,27 @@
+timezone: Africa/Lagos
+cookie: bpw
+os:
+path:
+address: :8181
+adminurl: admin:8181
+appurl: localhost:8181
+
+encryption_keys:
+  public: public.pem
+  private: private.pem
+
+dbconfig:
+  hostname: localhost
+  database: tessa
+  password: tessa
+  username: tessa
+  port: 5432
+
+twilio:
+  sender: TESSA
+  authtoken: ca00d38665da68c28e0c6c5f1ad96093
+  accountsid: ACeb79a16f02c1b1a4cec4608fa7278c57
+
+smslive247: b9c27991-d8f1-4733-853a-008a5a6d3c89
+
+mnemonic: borrow sudden network kit produce canvas way foam leisure blouse million human
