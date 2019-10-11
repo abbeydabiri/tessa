@@ -1,6 +1,0 @@
-2019/10/09 12:45:18.740125 config.go:127: Connecting Database..
-2019/10/09 12:45:18.740421 config.go:129: Error Connecting Database dial tcp [::1]:5432: connect: connection refused
-2019/10/09 12:45:55.025032 config.go:127: Connecting Database..
-2019/10/09 12:45:55.025234 config.go:129: Error Connecting Database pq: password authentication failed for user "tessa"
-2019/10/09 12:47:19.317738 config.go:127: Connecting Database..
-2019/10/09 12:47:19.510964 0apiRouter.go:133: serving @ :8181

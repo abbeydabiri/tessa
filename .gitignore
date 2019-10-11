@@ -4,4 +4,4 @@ tessa-linux-amd64
 public.pem
 private.pemlogger/
 tessa_mac.app
-logger/*
+logger/
