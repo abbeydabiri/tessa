@@ -145,7 +145,7 @@ func apiAuthSignup(httpRes http.ResponseWriter, httpReq *http.Request) {
 
 		fullname := ""
 		if formStruct.Title != "" {
-			fullname  = formStruct.Title
+			fullname = formStruct.Title
 		}
 
 		if formStruct.Firstname != "" {
@@ -156,7 +156,6 @@ func apiAuthSignup(httpRes http.ResponseWriter, httpReq *http.Request) {
 			fullname = fmt.Sprintf("%s %s", fullname, formStruct.Lastname)
 		}
 		formStruct.Fullname = fullname
-
 
 		profile.Create(map[string]interface{}{
 			"Workflow":   "enabled",
@@ -201,17 +200,16 @@ func apiAuthSignup(httpRes http.ResponseWriter, httpReq *http.Request) {
 	account := database.Accounts{}
 	_, fromAddress := blockchain.EthGenerateKey(mnemonic, 1)
 	account.Create(map[string]interface{}{
-		"Level":1,
-		"Priority":1,
-		"Title": "Account 1",
+		"Level":    1,
+		"Priority": 1,
+		"Title":    "Account 1",
 		"Workflow": "enabled",
-		"Address": fromAddress.Hex(),
-		
+		"Address":  fromAddress.Hex(),
+
 		"UserID":    user.ID,
-		"WalletID": wallet.ID,
+		"WalletID":  wallet.ID,
 		"ProfileID": profile.ID,
 	})
-
 
 	//generate account from wallet mnemonic
 
@@ -276,10 +274,10 @@ func apiAuthLogin(httpRes http.ResponseWriter, httpReq *http.Request) {
 	if err := bcrypt.CompareHashAndPassword(config.Decrypt(passwordHash), []byte(formStruct.Password)); err != nil {
 		log.Println(err.Error())
 		user.Failed++
-		if user.FailedMax < user.Failed {
+		if user.FailedMax <= user.Failed {
 			userMap["Workflow"] = "blocked"
 			userMap["Failed"] = user.FailedMax
-			message.Message = fmt.Sprintf("Username blocked - too many failed logins")
+			message.Message = fmt.Sprintf("Account blocked - too many failed logins")
 		} else {
 			log.Println(user.Failed)
 			userMap["Failed"] = user.Failed
@@ -435,7 +433,7 @@ func apiAuthOTPSend(httpRes http.ResponseWriter, httpReq *http.Request) {
 					user.Username = user.Username[len(user.Username)-10:]
 				}
 				user.Username = "+234" + user.Username
-				// go utils.SendSMSTwilio("", user.Username, smsMessage)
+				go utils.SendSMSTwilio("", user.Username, smsMessage)
 			}
 		}
 	}

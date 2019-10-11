@@ -2,4 +2,6 @@
 TESSA.aar
 tessa-linux-amd64
 public.pem
-private.pem
+private.pemlogger/
+tessa_mac.app
+logger/*
