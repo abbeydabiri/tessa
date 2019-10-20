@@ -1,8 +1,9 @@
 timezone: Africa/Lagos
-cookie: bpw
+cookie: tsa
 os:
 path:
-address: :8181
+address: 10.5.50.235:8181
+wkstaddress: 10.5.50.235:8181
 adminurl: admin:8181
 appurl: localhost:8181
 
@@ -15,7 +16,7 @@ dbconfig:
   database: tessa
   password: tessa
   username: tessa
-  port: 5432
+  port: 5432  
 
 twilio:
   sender: TESSA
