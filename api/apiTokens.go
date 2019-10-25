@@ -34,6 +34,49 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		table := database.Tokens{}
 		table.FillStruct(tableMap)
 
+		message.Code = http.StatusInternalServerError
+		if table.Company == "" {
+			message.Message += "Company is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.RC == "" {
+			message.Message += "Company RC is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.Title == "" {
+			message.Message += "Token Title is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.Symbol == "" {
+			message.Message += "Token Symbol is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.Project == "" {
+			message.Message += "Token Project is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.ProjectCost < 1.00 {
+			message.Message += "Token Project Cost is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.MaxTotalSupply < 1 {
+			message.Message += "Token Total Supply is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
 		if table.ID == 0 {
 			table.FillStruct(tableMap)
 			table.Create(table.ToMap())
@@ -41,6 +84,7 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			table.Update(tableMap)
 		}
 		message.Body = table.ID
+		message.Code = http.StatusOK
 		message.Message = RecordSaved
 	}
 	json.NewEncoder(httpRes).Encode(message)

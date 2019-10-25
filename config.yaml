@@ -2,7 +2,7 @@ timezone: Africa/Lagos
 cookie: tsa
 os:
 path:
-address: 10.5.50.235:8181
+address: :8181
 wkstaddress: 10.5.50.235:8181
 adminurl: admin:8181
 appurl: localhost:8181

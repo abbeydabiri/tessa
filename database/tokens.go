@@ -8,7 +8,6 @@ import (
 	"tessa/config"
 )
 
-
 // string memory _symbol, string memory _name, uint _maxTotalSupply, uint _seed
 
 //Tokens ...
@@ -16,16 +15,19 @@ type Tokens struct {
 	Fields
 
 	Decimals int64
-	
-	MaxTotalSupply,
-	TotalSupply,
-	Seed uint64
 
-	Price float64
+	Seed, MaxTotalSupply,
+	TotalSupply uint64
+
+	Price, Deposit,
+	ProjectCost float64
 
 	Type, Symbol,
 	Icon, Address,
 	Network string
+
+	Company, RC,
+	Project string
 }
 
 //ToMap ...

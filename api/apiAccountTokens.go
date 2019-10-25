@@ -34,6 +34,32 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		table := database.AccountTokens{}
 		table.FillStruct(tableMap)
 
+		message.Code = http.StatusInternalServerError
+		if table.Title == "" {
+			message.Message += "Title is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.WalletID == 0 {
+			message.Message += "Wallet ID is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.AccountID == 0 {
+			message.Message += "Account ID is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.TokenID == 0 {
+			message.Message += "Token ID is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+		message.Code = http.StatusOK
+
 		if table.ID == 0 {
 			table.FillStruct(tableMap)
 			table.Create(table.ToMap())
@@ -41,7 +67,7 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			table.Update(tableMap)
 		}
 		message.Body = table.ID
-		message.Message = RecordSaved
+		message.Message = "Token Purchased!!"
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }
