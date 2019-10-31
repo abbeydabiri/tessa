@@ -6,7 +6,9 @@ import (
 
 	"github.com/justinas/alice"
 
+	"tessa/config"
 	"tessa/database"
+	"tessa/utils"
 )
 
 func apiHandlerAccountTokens(middlewares alice.Chain, router *Router) {
@@ -41,6 +43,28 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			return
 		}
 
+		var userID, walletID uint64
+		if claims := utils.VerifyJWT(httpRes, httpReq); claims != nil {
+
+			if claims["ID"] != nil {
+				userID = uint64(tableMap["ID"].(float64))
+			}
+
+			if claims["WalletID"] != nil {
+				walletID = uint64(tableMap["WalletID"].(float64))
+			}
+		}
+
+		if table.WalletID == 0 || table.AccountID == 0 {
+			accountID := uint64(0)
+			config.Get().Postgres.Get(&accountID, "select id from accounts where userid = $1 and walletid = $2 limit 1", userID, walletID)
+
+			if accountID > uint64(0) {
+				table.AccountID = accountID
+				table.WalletID = walletID
+			}
+		}
+
 		if table.WalletID == 0 {
 			message.Message += "Wallet ID is required \n"
 			json.NewEncoder(httpRes).Encode(message)
@@ -67,7 +91,7 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			table.Update(tableMap)
 		}
 		message.Body = table.ID
-		message.Message = "Token Purchased!!"
+		message.Message = "Token Account Created!!"
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }

@@ -7,8 +7,8 @@ import (
 
 	"github.com/justinas/alice"
 
-	"tessa/database"
 	"tessa/config"
+	"tessa/database"
 	"tessa/utils"
 )
 
@@ -26,7 +26,6 @@ func apiDashboardGet(httpRes http.ResponseWriter, httpReq *http.Request) {
 			return
 		}
 
-
 		formSearch := &database.SearchParams{ID: uint64(claims["ProfileID"].(float64))}
 
 		table := database.Profiles{}
@@ -37,13 +36,10 @@ func apiDashboardGet(httpRes http.ResponseWriter, httpReq *http.Request) {
 		delete(tableMap, "Createdate")
 		delete(tableMap, "Updatedate")
 
-
-		
 		address := ""
 		sqlQueryAddress := "select address from accounts where profileid = $1 limit 1"
 		config.Get().Postgres.Get(&address, sqlQueryAddress, table.ID)
 		tableMap["Address"] = address
-
 
 		message.Body = tableMap
 

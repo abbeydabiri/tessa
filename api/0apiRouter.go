@@ -72,6 +72,7 @@ func wrapHandler(httpHandler http.Handler) httprouter.Handle {
 		ctx := context.WithValue(httpReq.Context(), "params", httpParams)
 		httpReq = httpReq.WithContext(ctx)
 
+		// httpRes.Header().Set("Access-Control-Allow-Origin", "*")
 		if !strings.Contains(httpReq.Header.Get("Accept-Encoding"), "gzip") {
 			httpHandler.ServeHTTP(httpRes, httpReq)
 			return
