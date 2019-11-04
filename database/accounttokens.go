@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/big"
 
 	"tessa/config"
 )
@@ -13,7 +12,7 @@ import (
 type AccountTokens struct {
 	Fields
 
-	Balance *big.Int
+	Balance uint64
 	WalletID, AccountID,
 	TokenID uint64
 }

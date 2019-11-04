@@ -74,7 +74,7 @@ func createTable(tableName string) (Message []string) {
 
 // SearchParams serves as default parameters used in generating sql prepared statements
 type SearchParams struct {
-	Field, Text, 
+	Field, Text,
 	Workflow string
 
 	Skip, Limit,

@@ -47,11 +47,11 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		if claims := utils.VerifyJWT(httpRes, httpReq); claims != nil {
 
 			if claims["ID"] != nil {
-				userID = uint64(tableMap["ID"].(float64))
+				userID = uint64(claims["ID"].(float64))
 			}
 
 			if claims["WalletID"] != nil {
-				walletID = uint64(tableMap["WalletID"].(float64))
+				walletID = uint64(claims["WalletID"].(float64))
 			}
 		}
 
@@ -107,6 +107,10 @@ func apiAccountTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) 
 		searchResults := table.Search(table.ToMap(), formSearch)
 		for _, result := range searchResults {
 			tableMap := result.ToMap()
+
+			Token := database.Tokens{}
+			config.Get().Postgres.Get(&Token, "select * from tokens where id = $1 limit 1", result.TokenID)
+			tableMap["Token"] = Token
 			searchList = append(searchList, tableMap)
 		}
 		message.Body = searchList

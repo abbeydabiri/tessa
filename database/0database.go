@@ -34,10 +34,10 @@ type Fields struct {
 	Createdby, Updatedby   uint64
 	Createdate, Updatedate time.Time
 
-	Code		string `sql:"index"`
-	Title		string `sql:"index"`
-	Workflow	string `sql:"index"`
-	Description	string
+	Code        string `sql:"index"`
+	Title       string `sql:"index"`
+	Workflow    string `sql:"index"`
+	Description string
 }
 
 func (fi Fields) sqlCreate(table Tables) string {
@@ -179,7 +179,7 @@ func sqlBulkInsertFields(sqlFields, sqlValues string, reflectType reflect.Type,
 }
 
 func (fi Fields) sqlInsert(table Tables, tableMap map[string]interface{}) (string, []interface{}) {
-	
+
 	delete(tableMap, "ID")
 	tableMap["Createdate"] = time.Now()
 	tableMap["Updatedate"] = time.Now()
@@ -343,8 +343,8 @@ func (fi Fields) sqlSelectOLD(table Tables, tableMap map[string]interface{}, sea
 
 	return sqlSelect, sqlParams
 }
-//select old
 
+//select old
 
 func (fi Fields) sqlSelect(table Tables, tableMap map[string]interface{}, searchParams *SearchParams) (string, []interface{}) {
 

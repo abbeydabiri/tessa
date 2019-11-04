@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"math/big"
 	"net/http"
 
 	"github.com/justinas/alice"
@@ -47,11 +46,11 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		var userID, walletID uint64
 		if claims := utils.VerifyJWT(httpRes, httpReq); claims != nil {
 			if claims["ID"] != nil {
-				userID = uint64(tableMap["ID"].(float64))
+				userID = uint64(claims["ID"].(float64))
 			}
 
 			if claims["WalletID"] != nil {
-				walletID = uint64(tableMap["WalletID"].(float64))
+				walletID = uint64(claims["WalletID"].(float64))
 			}
 		}
 
@@ -83,8 +82,9 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			return
 		}
 
-		amount := big.NewInt(0)
-		if amount.Cmp(table.Amount) == 0 {
+		// amount := big.NewInt(0)
+		// if amount.Cmp(table.Amount) == 0 {
+		if table.Amount == 0 {
 			message.Message += "Amount is required \n"
 			json.NewEncoder(httpRes).Encode(message)
 			return

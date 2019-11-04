@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/big"
 
 	"tessa/config"
 )
@@ -18,7 +17,7 @@ type Transactions struct {
 	Reference, FromAddress,
 	ToAddress string
 
-	Amount *big.Int
+	Amount uint64
 	WalletID, AccountID,
 	TokenID uint64
 }
