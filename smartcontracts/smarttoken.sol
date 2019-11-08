@@ -64,7 +64,7 @@ contract Owned {
 }
 
 
-contract BackPocketToken is ERC20, Owned, SafeMath {
+contract SmartToken is ERC20, Owned, SafeMath {
     string public name;
     string public symbol;
     uint8 public decimals;

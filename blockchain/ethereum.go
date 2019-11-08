@@ -29,8 +29,18 @@ const WEI = 1000000000000000000
 //ETHAddressNum ...
 var ETHAddressNum = 0
 
+//InfuraKey ...
+var InfuraNetwork = "https://rinkeby.infura.io/wvxLGQSZBjP3Ak7iqt8J"
+
+const infuraKey = "wvxLGQSZBjP3Ak7iqt8J"
+const infuraKovan = "https://kovan.infura.io"
+const infuraRopsten = "https://ropsten.infura.io"
+const infuraRinkeby = "https://rinkeby.infura.io"
+const infuraMainnet = "https://mainnet.infura.io"
+
 //EthClientDial ...
 func EthClientDial(network string) {
+	network = InfuraNetwork
 	Client, err = ethclient.Dial(network)
 	if err != nil {
 		log.Fatal(err)
@@ -53,7 +63,7 @@ func ETHIsMnemonicValid(mnemonic string) bool {
 }
 
 //EthGenerateKey ...
-func EthGenerateKey(mnemonic string, level int) ( privateKey *ecdsa.PrivateKey, fromAddress common.Address) {
+func EthGenerateKey(mnemonic string, level int) (privateKey *ecdsa.PrivateKey, fromAddress common.Address) {
 
 	seed := bip39.NewSeed(mnemonic, "")
 	masterPrivateKey, _ := bip32.NewMasterKey(seed)
@@ -95,7 +105,6 @@ func EthGenerateKey(mnemonic string, level int) ( privateKey *ecdsa.PrivateKey, 
 
 	childPrivateKey, _ := childAccounts.NewChildKey(uint32(level))
 
-	
 	privateKeyHex := hexutil.Encode(childPrivateKey.Key)[2:]
 	privateKey, _ = crypto.HexToECDSA(privateKeyHex)
 	fromAddress = crypto.PubkeyToAddress(privateKey.PublicKey)

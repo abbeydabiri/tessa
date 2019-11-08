@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"tessa/api"
+	"tessa/blockchain"
 	"tessa/config"
 	"tessa/utils"
 )
@@ -22,6 +23,8 @@ func main() {
 
 	utils.Logger("")
 	config.Init(nil) //Init Config.yaml
+
+	go blockchain.EthClientDial("")
 	api.StartRouter()
 	//
 }

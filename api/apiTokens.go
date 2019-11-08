@@ -1,12 +1,21 @@
 package api
 
 import (
+	"context"
+	"errors"
+
 	"encoding/json"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/justinas/alice"
 
+	"math/big"
+	"tessa/config"
 	"tessa/database"
+
+	"tessa/blockchain"
+	"tessa/smartcontracts"
 )
 
 func apiHandlerTokens(middlewares alice.Chain, router *Router) {
@@ -78,6 +87,12 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 
 		if table.ID == 0 {
+			deployedToken, err := apiTokenDeploy(table.Symbol, table.Title, table.MaxTotalSupply, table.Seed)
+			if err == nil {
+				tableMap["Code"] = deployedToken["transaction"]
+				tableMap["Address"] = deployedToken["address"]
+			}
+
 			table.FillStruct(tableMap)
 			table.Create(table.ToMap())
 		} else {
@@ -106,4 +121,59 @@ func apiTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 		message.Body = searchList
 	}
 	json.NewEncoder(httpRes).Encode(message)
+}
+
+func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map[string]string, err error) {
+
+	if Symbol == "" {
+		err = errors.New("Symbol is required")
+		return
+	}
+
+	if Name == "" {
+		err = errors.New("Name is required")
+		return
+	}
+
+	if maxtotalsupply == uint64(0) {
+		err = errors.New("Max Total Supply is required")
+		return
+	}
+
+	Seed := new(big.Int).SetUint64(seed)
+	MaxTotalSupply := new(big.Int).SetUint64(maxtotalsupply)
+
+	if blockchain.Client == nil {
+		blockchain.EthClientDial(blockchain.InfuraNetwork)
+	}
+
+	privateKey, fromAddress := blockchain.EthGenerateKey(config.Get().Mnemonic, 1)
+	nonce, errx := blockchain.Client.PendingNonceAt(context.Background(), fromAddress)
+	if errx != nil {
+		err = errx
+		return
+	}
+
+	gasPrice, errx := blockchain.Client.SuggestGasPrice(context.Background())
+	if errx != nil {
+		err = errx
+		return
+	}
+
+	auth := bind.NewKeyedTransactor(privateKey)
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0)     // in wei
+	auth.GasLimit = uint64(300000) // in units
+	auth.GasPrice = gasPrice
+
+	// address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
+	address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
+	if err != nil {
+		return nil, err
+	}
+
+	token["address"] = address.Hex()
+	token["transaction"] = tx.Hash().Hex()
+
+	return
 }
