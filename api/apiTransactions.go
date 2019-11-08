@@ -118,7 +118,8 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			table.Update(tableMap)
 		}
 		message.Body = table.ID
-		message.Message = RecordSaved
+		message.Code = http.StatusOK
+		message.Message = "Transaction Saved"
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }
@@ -134,6 +135,10 @@ func apiTransactionsSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 		searchResults := table.Search(table.ToMap(), formSearch)
 		for _, result := range searchResults {
 			tableMap := result.ToMap()
+
+			Token := database.Tokens{}
+			config.Get().Postgres.Get(&Token, "select * from tokens where id = $1 limit 1", result.TokenID)
+			tableMap["Token"] = Token
 			searchList = append(searchList, tableMap)
 		}
 		message.Body = searchList

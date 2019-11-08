@@ -83,6 +83,20 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			return
 		}
 		message.Code = http.StatusOK
+		
+		//If Token Account already exists do not replace
+		accountID := uint64(0)
+		sqlCheck := "select id from accounttokens where tokenid = $1 and walletid = $2 and accountid = $3 limit 1"
+		config.Get().Postgres.Get(&accountID, sqlCheck, table.TokenID, table.WalletID, table.AccountID )
+		if accountID > uint64(0) {
+			message.Body = table.ID
+			message.Message = ""
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+		//If Token Account already exists do not replace
+
+
 
 		if table.ID == 0 {
 			table.FillStruct(tableMap)

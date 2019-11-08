@@ -414,5 +414,9 @@ func isNumeric(fieldName string) (isNumeric bool) {
 		isNumeric = true
 	}
 
+	if strings.HasSuffix(fieldName, "ID") {
+		isNumeric = true
+	}
+
 	return
 }

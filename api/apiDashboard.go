@@ -36,10 +36,11 @@ func apiDashboardGet(httpRes http.ResponseWriter, httpReq *http.Request) {
 		delete(tableMap, "Createdate")
 		delete(tableMap, "Updatedate")
 
-		address := ""
-		sqlQueryAddress := "select address from accounts where profileid = $1 limit 1"
-		config.Get().Postgres.Get(&address, sqlQueryAddress, table.ID)
-		tableMap["Address"] = address
+		account := database.Accounts{}
+		sqlQueryAccount := "select * from accounts where profileid = $1 limit 1"
+		config.Get().Postgres.Get(&account, sqlQueryAccount, table.ID)
+		tableMap["Address"] = account.Address
+		tableMap["WalletID"] = account.WalletID
 
 		message.Body = tableMap
 

@@ -77,6 +77,7 @@ func (table *AccountTokens) Search(tableMap map[string]interface{}, searchParams
 		if err := config.Get().Postgres.Select(&list, sqlQuery, sqlParams...); err != nil {
 			log.Println(err.Error())
 		}
+		
 	}
 	return
 }

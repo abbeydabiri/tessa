@@ -15,7 +15,7 @@ import (
 	"tessa/database"
 
 	"tessa/blockchain"
-	"tessa/smartcontracts"
+	// "tessa/smartcontracts"
 )
 
 func apiHandlerTokens(middlewares alice.Chain, router *Router) {
@@ -100,7 +100,7 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 		message.Body = table.ID
 		message.Code = http.StatusOK
-		message.Message = RecordSaved
+		message.Message = "Token Created and Smart Contract Deployed to "+tableMap["Address"].(string)
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }
@@ -125,6 +125,7 @@ func apiTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 
 func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map[string]string, err error) {
 
+	token = make(map[string]string)
 	if Symbol == "" {
 		err = errors.New("Symbol is required")
 		return
@@ -140,8 +141,8 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 		return
 	}
 
-	Seed := new(big.Int).SetUint64(seed)
-	MaxTotalSupply := new(big.Int).SetUint64(maxtotalsupply)
+	// Seed := new(big.Int).SetUint64(seed)
+	// MaxTotalSupply := new(big.Int).SetUint64(maxtotalsupply)
 
 	if blockchain.Client == nil {
 		blockchain.EthClientDial(blockchain.InfuraNetwork)
@@ -153,6 +154,12 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 		err = errx
 		return
 	}
+
+	//tobe removed
+		token["address"] = fromAddress.Hex()
+		token["transaction"] = fromAddress.Hex()
+		return
+	//tobe removed
 
 	gasPrice, errx := blockchain.Client.SuggestGasPrice(context.Background())
 	if errx != nil {
@@ -167,13 +174,13 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 	auth.GasPrice = gasPrice
 
 	// address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
-	address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
-	if err != nil {
-		return nil, err
-	}
+	// address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	token["address"] = address.Hex()
-	token["transaction"] = tx.Hash().Hex()
+	// token["address"] = address.Hex()
+	// token["transaction"] = tx.Hash().Hex()
 
 	return
 }
