@@ -1,68 +1,9 @@
 pragma solidity >=0.4.0 <0.7.0;
 
-contract SafeMath {
-    
-    function safeAdd(uint a, uint b) internal pure returns (uint c) {
-        c = a + b;
-        require(c >= a);
-    }
-    function safeSub(uint a, uint b) internal pure returns (uint c) {
-        require(b <= a);
-        c = a - b;
-    }
-    function safeMul(uint a, uint b) internal pure returns (uint c) {
-        if (a == 0) {
-            return 0;
-        }
-        
-        c = a * b;
-        require(c / a == b);
-    }
-    function safeDiv(uint a, uint b) internal pure returns (uint c) {
-        require(b > 0);
-        c = a / b;
-    }
-}
-
-contract ERC20 {
-    function totalSupply() public view returns (uint);
-    function balanceOf(address tokenOwner) public view returns (uint balance);
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-    function transfer(address to, uint tokens) public returns (bool success);
-    function approve(address spender, uint tokens) public returns (bool success);
-    function transferFrom(address from, address to, uint tokens) public returns (bool success);
-
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
-}
-
-
-contract Owned {
-    address payable owner;
-    address payable newOwner;
-
-    event OwnershipTransferred(address indexed _from, address indexed _to);
-
-    constructor() public {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner, "Only contract owner can perform this transaction");
-        _;
-    }
-    
-    function transferOwnership(address payable _newOwner) public onlyOwner {
-        newOwner = _newOwner;
-    }
-    function acceptOwnership() public {
-        require(msg.sender == newOwner, "Only new owner can perform this transaction");
-        emit OwnershipTransferred(owner, newOwner);
-        owner = newOwner;
-        newOwner = address(0);
-    }
-}
-
+import "safemath.sol";
+import "erc20.sol";
+import "owned.sol";
+import "approveandfallback.sol";
 
 contract SmartToken is ERC20, Owned, SafeMath {
     string public name;
@@ -173,8 +114,4 @@ contract SmartToken is ERC20, Owned, SafeMath {
     }
 
     
-}   
-    
-contract approveAndCallFallBack {
-    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
-}
+} 
