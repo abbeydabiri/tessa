@@ -22,8 +22,11 @@ func apiAccountTokensGet(httpRes http.ResponseWriter, httpReq *http.Request) {
 	if message.Code == http.StatusOK {
 		table := database.AccountTokens{}
 		table.GetByID(table.ToMap(), formSearch)
-
 		tableMap := table.ToMap()
+
+		Token := database.Tokens{}
+		config.Get().Postgres.Get(&Token, "select * from tokens where id = $1 limit 1", table.TokenID)
+		tableMap["Token"] = Token
 
 		message.Body = tableMap
 	}
@@ -100,6 +103,7 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 
 		if table.ID == 0 {
 			table.FillStruct(tableMap)
+			table.Balance = float64(0.0)
 			table.Create(table.ToMap())
 		} else {
 			table.Update(tableMap)

@@ -86,7 +86,7 @@ func sqlCreateFields(reflectType reflect.Type, tablename, sqlCreate, sqlIndex st
 				defaultValue = "DEFAULT ''"
 			case "float", "float64":
 				defaultValue = "DEFAULT 0.0"
-			case "int", "int8":
+			case "int", "int8", "int64", "uint64":
 				defaultValue = "DEFAULT 0"
 			}
 			sqlCreate += fmt.Sprintf("%s %s %s", fieldName, fieldType, defaultValue)

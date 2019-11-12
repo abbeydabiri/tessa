@@ -17,9 +17,10 @@ type Transactions struct {
 	Reference, FromAddress,
 	ToAddress string
 
-	Amount uint64
-	WalletID, AccountID,
-	TokenID uint64
+	Amount float64
+	 
+	WalletID, TokenID,
+	AccountID uint64
 }
 
 //ToMap ...

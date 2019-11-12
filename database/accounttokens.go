@@ -12,7 +12,7 @@ import (
 type AccountTokens struct {
 	Fields
 
-	Balance uint64
+	Balance float64
 	WalletID, AccountID,
 	TokenID uint64
 }

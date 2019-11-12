@@ -107,16 +107,44 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		//From and To Address cannot be the same
 
 		if table.ID == 0 {
-
-			//Update Balance
-
-			//Update Balance
-
 			table.FillStruct(tableMap)
 			table.Create(table.ToMap())
 		} else {
 			table.Update(tableMap)
 		}
+
+		//Update Balance
+
+		sqlDebit  := "select sum(amount) from transactions where fromaddress = $1"
+		sqlCredit  := "select sum(amount) from transactions where toaddress = $1"
+		sqlUpdateBalance := "update accounttokens set balance = $1 where accountid = (select id from accounts where address = $2)"
+
+		fromDebit := float64(0)
+		config.Get().Postgres.Get(&fromDebit, sqlDebit,table.FromAddress) 
+		
+		fromCredit := float64(0)
+		config.Get().Postgres.Get(&fromCredit, sqlCredit,table.FromAddress) 
+
+		fromBalance := fromCredit - fromDebit
+		if _,err := config.Get().Postgres.Exec(sqlUpdateBalance, fromBalance, table.FromAddress); err != nil {
+			println(err.Error())
+		}
+
+
+		toDebit := float64(0)
+		config.Get().Postgres.Get(&toDebit, sqlDebit,table.ToAddress) 
+
+	
+		toCredit := float64(0)
+		config.Get().Postgres.Get(&toCredit, sqlCredit,table.ToAddress) 
+
+		toBalance := toCredit - toDebit
+		if _,err := config.Get().Postgres.Exec(sqlUpdateBalance, toBalance, table.ToAddress); err != nil {
+			println(err.Error())
+		}
+
+		//Update Balance
+
 		message.Body = table.ID
 		message.Code = http.StatusOK
 		message.Message = "Transaction Saved"

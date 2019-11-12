@@ -15,7 +15,7 @@ import (
 	"tessa/database"
 
 	"tessa/blockchain"
-	// "tessa/smartcontracts"
+	"tessa/smartcontracts"
 )
 
 func apiHandlerTokens(middlewares alice.Chain, router *Router) {
@@ -141,8 +141,8 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 		return
 	}
 
-	// Seed := new(big.Int).SetUint64(seed)
-	// MaxTotalSupply := new(big.Int).SetUint64(maxtotalsupply)
+	Seed := new(big.Int).SetUint64(seed)
+	MaxTotalSupply := new(big.Int).SetUint64(maxtotalsupply)
 
 	if blockchain.Client == nil {
 		blockchain.EthClientDial(blockchain.InfuraNetwork)
@@ -155,11 +155,11 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 		return
 	}
 
-	//tobe removed
-		token["address"] = fromAddress.Hex()
-		token["transaction"] = fromAddress.Hex()
-		return
-	//tobe removed
+	// //tobe removed
+	// 	token["address"] = fromAddress.Hex()
+	// 	token["transaction"] = fromAddress.Hex()
+	// 	return
+	// //tobe removed
 
 	gasPrice, errx := blockchain.Client.SuggestGasPrice(context.Background())
 	if errx != nil {
@@ -173,14 +173,14 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 	auth.GasLimit = uint64(300000) // in units
 	auth.GasPrice = gasPrice
 
-	// address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
-	// address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
+	address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
+	if err != nil {
+		return nil, err
+	}
 
-	// token["address"] = address.Hex()
-	// token["transaction"] = tx.Hash().Hex()
+	token["address"] = address.Hex()
+	token["transaction"] = tx.Hash().Hex()
 
 	return
 }
