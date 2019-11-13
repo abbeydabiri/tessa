@@ -15,7 +15,7 @@ import (
 	"tessa/database"
 
 	"tessa/blockchain"
-	"tessa/smartcontracts"
+	"tessa/store"
 )
 
 func apiHandlerTokens(middlewares alice.Chain, router *Router) {
@@ -173,8 +173,11 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 	auth.GasLimit = uint64(300000) // in units
 	auth.GasPrice = gasPrice
 
-	address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
-	address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
+	// // address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
+	// address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
+
+	address, tx, _, err := store.DeployStore(auth, blockchain.Client, "1.0")
+
 	if err != nil {
 		return nil, err
 	}
