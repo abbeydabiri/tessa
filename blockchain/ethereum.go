@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strconv"
+	"unsafe"
 
 	"github.com/tyler-smith/go-bip32"
 	"github.com/tyler-smith/go-bip39"
@@ -37,6 +39,18 @@ const infuraKovan = "https://kovan.infura.io"
 const infuraRopsten = "https://ropsten.infura.io"
 const infuraRinkeby = "https://rinkeby.infura.io"
 const infuraMainnet = "https://mainnet.infura.io"
+
+func EthHexToFloat64(hex string) (float64, error) {
+	hexUint, err := strconv.ParseUint(hex, 16, 64)
+	if err != nil {
+		log.Println(err.Error())
+		return 0.0, err
+	}
+
+	hexFloat := uint64(hexUint)
+	hexResult := *(*float64)(unsafe.Pointer(&hexFloat))
+	return hexResult, nil
+}
 
 //EthClientDial ...
 func EthClientDial(network string) {

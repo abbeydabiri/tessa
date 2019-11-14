@@ -312,7 +312,7 @@ func apiAuthLogin(httpRes http.ResponseWriter, httpReq *http.Request) {
 	//Get Wallet List
 
 	// set our claims
-	cookieExpires := time.Now().Add(time.Minute * 15)
+	cookieExpires := time.Now().Add(time.Minute * 60)
 	jwtClaims := jwt.MapClaims{
 		"ID":        user.ID,
 		"Username":  user.Username,
@@ -359,7 +359,7 @@ func apiAuthLogout(httpRes http.ResponseWriter, httpReq *http.Request) {
 		return
 	}
 
-	username := "--unkown--"
+	username := "--unknown--"
 	if claims["Username"] != nil {
 		username = claims["Username"].(string)
 	}

@@ -24,7 +24,7 @@ func apiGeneric(httpRes http.ResponseWriter, httpReq *http.Request) (message *Me
 
 	claims := utils.VerifyJWT(httpRes, httpReq)
 	if claims == nil {
-		cookieExpires := time.Now().Add(time.Minute * 15) // set the expire time
+		cookieExpires := time.Now().Add(time.Minute * 60) // set the expire time
 		jwtClaims := map[string]interface{}{
 			"exp": cookieExpires.Unix(),
 		}

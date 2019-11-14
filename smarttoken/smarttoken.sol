@@ -38,8 +38,8 @@ contract ERC20 {
 
 
 contract Owned {
-    address payable owner;
-    address payable newOwner;
+    address  owner;
+    address  newOwner;
 
     event OwnershipTransferred(address indexed _from, address indexed _to);
 
@@ -52,7 +52,7 @@ contract Owned {
         _;
     }
     
-    function transferOwnership(address payable _newOwner) public onlyOwner {
+    function transferOwnership(address  _newOwner) public onlyOwner {
         newOwner = _newOwner;
     }
     function acceptOwnership() public {
@@ -64,11 +64,11 @@ contract Owned {
 }
 
 
-contract TessaToken is ERC20, Owned, SafeMath {
+contract SmartToken is ERC20, Owned, SafeMath {
     string public name;
     string public symbol;
     uint8 public decimals;
-    uint public _totalSupply;
+    uint public curTotalSupply;
     uint public maxTotalSupply;
 
     mapping(address => uint) balances;
@@ -85,10 +85,10 @@ contract TessaToken is ERC20, Owned, SafeMath {
 
         name = _name;
         symbol = _symbol;
-        _totalSupply = _seed*(10**uint(decimals));
+        curTotalSupply = _seed*(10**uint(decimals));
         maxTotalSupply = _maxTotalSupply*(10**uint(decimals));
-        balances[msg.sender] = _totalSupply;
-        emit Transfer(address(0), msg.sender, _totalSupply);
+        balances[msg.sender] = curTotalSupply;
+        emit Transfer(address(0), msg.sender, curTotalSupply);
     }
 
 
@@ -97,8 +97,8 @@ contract TessaToken is ERC20, Owned, SafeMath {
         require(!blacklist[to], "This account has been blacklisted");
 
         tokens = tokens*(10**uint(decimals));
-        _totalSupply = safeAdd(_totalSupply, tokens);
-        require(_totalSupply <= maxTotalSupply);
+        curTotalSupply = safeAdd(curTotalSupply, tokens);
+        require(curTotalSupply <= maxTotalSupply);
 
         balances[to] = safeAdd(balances[to], tokens);
         emit Transfer(owner, to, tokens);
@@ -113,7 +113,7 @@ contract TessaToken is ERC20, Owned, SafeMath {
     }
 
     function totalSupply() public view returns (uint) {
-        return _totalSupply - balances[address(0)];
+        return curTotalSupply - balances[address(0)];
     }
 
     function balanceOf(address tokenOwner) public view returns (uint balance) {

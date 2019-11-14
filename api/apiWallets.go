@@ -52,7 +52,7 @@ func apiWalletsSelect(httpRes http.ResponseWriter, httpReq *http.Request) {
 	message.Code = http.StatusOK
 	message.Message = fmt.Sprintf("%s selected!!", formStruct.Title)
 
-	cookieExpires := time.Now().Add(time.Minute * 15)
+	cookieExpires := time.Now().Add(time.Minute * 60)
 	jwtClaims["WalletID"] = formStruct.WalletID
 	jwtClaims["exp"] = cookieExpires.Unix()
 

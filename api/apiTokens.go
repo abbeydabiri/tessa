@@ -3,9 +3,11 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"encoding/json"
 	"net/http"
+	"log"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/justinas/alice"
@@ -15,7 +17,7 @@ import (
 	"tessa/database"
 
 	"tessa/blockchain"
-	"tessa/store"
+	"tessa/smarttoken"
 )
 
 func apiHandlerTokens(middlewares alice.Chain, router *Router) {
@@ -87,6 +89,9 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 
 		if table.ID == 0 {
+
+			tableMap["Code"] = ""
+			tableMap["Address"] = ""
 			deployedToken, err := apiTokenDeploy(table.Symbol, table.Title, table.MaxTotalSupply, table.Seed)
 			if err == nil {
 				tableMap["Code"] = deployedToken["transaction"]
@@ -100,7 +105,7 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 		message.Body = table.ID
 		message.Code = http.StatusOK
-		message.Message = "Token Created and Smart Contract Deployed to "+tableMap["Address"].(string)
+		message.Message = "Token Created and Smart Contract Deployed to " + tableMap["Address"].(string)
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }
@@ -161,29 +166,44 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 	// 	return
 	// //tobe removed
 
-	gasPrice, errx := blockchain.Client.SuggestGasPrice(context.Background())
+	gasPriceTemp, errx := blockchain.Client.SuggestGasPrice(context.Background())
 	if errx != nil {
 		err = errx
 		return
 	}
 
+	
+	// gasPriceFloat, _ := blockchain.EthHexToFloat64(gasPrice)
+	// println(gasPriceFloat)
+
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)     // in wei
-	auth.GasLimit = uint64(300000) // in units
-	auth.GasPrice = gasPrice
+	auth.GasLimit = uint64(6009850) // in units
+	gasPrice := big.NewInt(1)
+	auth.GasPrice = gasPrice.Mul(gasPrice, gasPriceTemp)
 
 	// // address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
-	// address, tx, _, err := smartcontracts.DeploySmartcontracts(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
+	address, tx, _, err := smarttoken.DeploySmartToken(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
 
-	address, tx, _, err := store.DeployStore(auth, blockchain.Client, "1.0")
+	// address, tx, _, err := store.DeployStore(auth, blockchain.Client, "1.0")
 
 	if err != nil {
+		log.Println(err.Error())
+
+		log.Println(auth.GasPrice)
+		log.Println(auth.GasLimit)
+		log.Println(tx.Hash().Hex())
+		
 		return nil, err
 	}
 
 	token["address"] = address.Hex()
 	token["transaction"] = tx.Hash().Hex()
+
+	fmt.Println("token: ", token["address"])
+	fmt.Println("transaction: ", token["transaction"])
+
 
 	return
 }
