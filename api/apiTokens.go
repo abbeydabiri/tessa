@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"encoding/json"
-	"net/http"
 	"log"
+	"net/http"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/justinas/alice"
@@ -44,6 +44,23 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 	if message.Code == http.StatusOK {
 		table := database.Tokens{}
 		table.FillStruct(tableMap)
+
+		//Check if Token name or symbol is already in use
+		if table.ID == 0 {
+			numTokens := 0
+			sqlCheck := "select count(id) from tokens where lower(title) = lower($1) or lower(symbol) = lower($2)"
+			err := config.Get().Postgres.Get(&numTokens, sqlCheck, table.Title, table.Symbol)
+			if err != nil {
+				log.Println(err.Error())
+			}
+			if numTokens > 0 {
+				message.Message += "Token Name or Symbol already exists!!! \n"
+				message.Code = http.StatusInternalServerError
+				json.NewEncoder(httpRes).Encode(message)
+				return
+			}
+		}
+		//Check if Token name or symbol is already in use
 
 		message.Code = http.StatusInternalServerError
 		if table.Company == "" {
@@ -160,25 +177,15 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 		return
 	}
 
-	// //tobe removed
-	// 	token["address"] = fromAddress.Hex()
-	// 	token["transaction"] = fromAddress.Hex()
-	// 	return
-	// //tobe removed
-
 	gasPriceTemp, errx := blockchain.Client.SuggestGasPrice(context.Background())
 	if errx != nil {
 		err = errx
 		return
 	}
 
-	
-	// gasPriceFloat, _ := blockchain.EthHexToFloat64(gasPrice)
-	// println(gasPriceFloat)
-
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce))
-	auth.Value = big.NewInt(0)     // in wei
+	auth.Value = big.NewInt(0)      // in wei
 	auth.GasLimit = uint64(6009850) // in units
 	gasPrice := big.NewInt(1)
 	auth.GasPrice = gasPrice.Mul(gasPrice, gasPriceTemp)
@@ -186,15 +193,8 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 	// // address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
 	address, tx, _, err := smarttoken.DeploySmartToken(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
 
-	// address, tx, _, err := store.DeployStore(auth, blockchain.Client, "1.0")
-
 	if err != nil {
 		log.Println(err.Error())
-
-		log.Println(auth.GasPrice)
-		log.Println(auth.GasLimit)
-		log.Println(tx.Hash().Hex())
-		
 		return nil, err
 	}
 
@@ -203,7 +203,6 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 
 	fmt.Println("token: ", token["address"])
 	fmt.Println("transaction: ", token["transaction"])
-
 
 	return
 }

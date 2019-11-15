@@ -38,8 +38,8 @@ contract ERC20 {
 
 
 contract Owned {
-    address  owner;
-    address  newOwner;
+    address payable owner;
+    address payable newOwner;
 
     event OwnershipTransferred(address indexed _from, address indexed _to);
 
@@ -52,7 +52,7 @@ contract Owned {
         _;
     }
     
-    function transferOwnership(address  _newOwner) public onlyOwner {
+    function transferOwnership(address payable _newOwner) public onlyOwner {
         newOwner = _newOwner;
     }
     function acceptOwnership() public {

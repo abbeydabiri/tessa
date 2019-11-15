@@ -114,36 +114,36 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 
 		//Update Balance
-
-		sqlDebit  := "select sum(amount) from transactions where fromaddress = $1"
-		sqlCredit  := "select sum(amount) from transactions where toaddress = $1"
+		sqlDebit := "select sum(amount) from transactions where fromaddress = $1"
+		sqlCredit := "select sum(amount) from transactions where toaddress = $1"
 		sqlUpdateBalance := "update accounttokens set balance = $1 where accountid = (select id from accounts where address = $2)"
 
 		fromDebit := float64(0)
-		config.Get().Postgres.Get(&fromDebit, sqlDebit,table.FromAddress) 
-		
+		config.Get().Postgres.Get(&fromDebit, sqlDebit, table.FromAddress)
+
 		fromCredit := float64(0)
-		config.Get().Postgres.Get(&fromCredit, sqlCredit,table.FromAddress) 
+		config.Get().Postgres.Get(&fromCredit, sqlCredit, table.FromAddress)
 
 		fromBalance := fromCredit - fromDebit
-		if _,err := config.Get().Postgres.Exec(sqlUpdateBalance, fromBalance, table.FromAddress); err != nil {
+		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, fromBalance, table.FromAddress); err != nil {
 			println(err.Error())
 		}
-
 
 		toDebit := float64(0)
-		config.Get().Postgres.Get(&toDebit, sqlDebit,table.ToAddress) 
+		config.Get().Postgres.Get(&toDebit, sqlDebit, table.ToAddress)
 
-	
 		toCredit := float64(0)
-		config.Get().Postgres.Get(&toCredit, sqlCredit,table.ToAddress) 
+		config.Get().Postgres.Get(&toCredit, sqlCredit, table.ToAddress)
 
 		toBalance := toCredit - toDebit
-		if _,err := config.Get().Postgres.Exec(sqlUpdateBalance, toBalance, table.ToAddress); err != nil {
+		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, toBalance, table.ToAddress); err != nil {
 			println(err.Error())
 		}
-
 		//Update Balance
+
+		//Transfer
+
+		//Transfer
 
 		message.Body = table.ID
 		message.Code = http.StatusOK
