@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"encoding/json"
 	"log"
@@ -145,7 +144,7 @@ func apiTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 	json.NewEncoder(httpRes).Encode(message)
 }
 
-func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map[string]string, err error) {
+func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed float64) (token map[string]string, err error) {
 
 	token = make(map[string]string)
 	if Symbol == "" {
@@ -158,13 +157,13 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 		return
 	}
 
-	if maxtotalsupply == uint64(0) {
+	if maxtotalsupply <= float64(0) {
 		err = errors.New("Max Total Supply is required")
 		return
 	}
 
-	Seed := new(big.Int).SetUint64(seed)
-	MaxTotalSupply := new(big.Int).SetUint64(maxtotalsupply)
+	Seed := new(big.Int).SetFloat64(seed)
+	MaxTotalSupply := new(big.Int).SetFloat64(maxtotalsupply)
 
 	if blockchain.Client == nil {
 		blockchain.EthClientDial(blockchain.InfuraNetwork)
@@ -200,9 +199,6 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64) (token map
 
 	token["address"] = address.Hex()
 	token["transaction"] = tx.Hash().Hex()
-
-	fmt.Println("token: ", token["address"])
-	fmt.Println("transaction: ", token["transaction"])
 
 	return
 }

@@ -44,6 +44,8 @@ func (table *Transactions) Create(tableMap map[string]interface{}) {
 	if sqlQuery, sqlParams := table.sqlInsert(table, tableMap); sqlQuery != "" {
 		if err := config.Get().Postgres.Get(&table.ID, sqlQuery, sqlParams...); err != nil {
 			log.Println(err.Error())
+			log.Println(sqlQuery)
+			log.Println(sqlParams)
 		}
 	}
 }

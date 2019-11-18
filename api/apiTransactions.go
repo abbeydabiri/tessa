@@ -148,7 +148,7 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 
 		message.Body = table.ID
 		message.Code = http.StatusOK
-		message.Message = "Transaction Saved"
+		message.Message = "Transaction Sent"
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }
