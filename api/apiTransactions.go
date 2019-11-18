@@ -114,29 +114,29 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 
 		//Update Balance
-		sqlDebit := "select sum(amount) from transactions where fromaddress = $1"
-		sqlCredit := "select sum(amount) from transactions where toaddress = $1"
-		sqlUpdateBalance := "update accounttokens set balance = $1 where accountid = (select id from accounts where address = $2)"
+		sqlDebit := "select sum(amount) from transactions where fromaddress = $1 and tokenid = $2"
+		sqlCredit := "select sum(amount) from transactions where toaddress = $1 and tokenid = $2"
+		sqlUpdateBalance := "update accounttokens set balance = $1 where accountid = (select id from accounts where address = $2) and tokenid = $3"
 
 		fromDebit := float64(0)
-		config.Get().Postgres.Get(&fromDebit, sqlDebit, table.FromAddress)
+		config.Get().Postgres.Get(&fromDebit, sqlDebit, table.FromAddress, table.TokenID)
 
 		fromCredit := float64(0)
-		config.Get().Postgres.Get(&fromCredit, sqlCredit, table.FromAddress)
+		config.Get().Postgres.Get(&fromCredit, sqlCredit, table.FromAddress, table.TokenID)
 
 		fromBalance := fromCredit - fromDebit
-		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, fromBalance, table.FromAddress); err != nil {
+		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, fromBalance, table.FromAddress, table.TokenID); err != nil {
 			println(err.Error())
 		}
 
 		toDebit := float64(0)
-		config.Get().Postgres.Get(&toDebit, sqlDebit, table.ToAddress)
+		config.Get().Postgres.Get(&toDebit, sqlDebit, table.ToAddress, table.TokenID)
 
 		toCredit := float64(0)
-		config.Get().Postgres.Get(&toCredit, sqlCredit, table.ToAddress)
+		config.Get().Postgres.Get(&toCredit, sqlCredit, table.ToAddress, table.TokenID)
 
 		toBalance := toCredit - toDebit
-		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, toBalance, table.ToAddress); err != nil {
+		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, toBalance, table.ToAddress, table.TokenID); err != nil {
 			println(err.Error())
 		}
 		//Update Balance
