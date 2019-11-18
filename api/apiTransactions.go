@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/justinas/alice"
@@ -159,8 +160,16 @@ func apiTransactionsSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 		if formSearch.Field == "" {
 			formSearch.Field = "Title"
 		}
+
+		sqlExtra := ""
+		if formSearch.Filter["ToAddress"] != "" && formSearch.Filter["FromAddress"] != "" {
+			sqlExtra = fmt.Sprintf("(toaddress = '%s' or fromaddress = '%s') and", formSearch.Filter["ToAddress"], formSearch.Filter["FromAddress"])
+			delete(formSearch.Filter, "ToAddress")
+			delete(formSearch.Filter, "FromAddress")
+		}
+
 		var searchList []interface{}
-		searchResults := table.Search(table.ToMap(), formSearch)
+		searchResults := table.SearchExtra(table.ToMap(), formSearch, sqlExtra)
 		for _, result := range searchResults {
 			tableMap := result.ToMap()
 

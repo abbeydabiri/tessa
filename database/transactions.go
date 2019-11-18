@@ -18,7 +18,7 @@ type Transactions struct {
 	ToAddress string
 
 	Amount float64
-	 
+
 	WalletID, TokenID,
 	AccountID uint64
 }
@@ -80,6 +80,26 @@ func (table *Transactions) Search(tableMap map[string]interface{}, searchParams 
 
 		sqlParams = append(sqlParams, searchParams.Skip)
 		sqlQuery += fmt.Sprintf("offset $%v ", len(sqlParams))
+		if err := config.Get().Postgres.Select(&list, sqlQuery, sqlParams...); err != nil {
+			log.Println(err.Error())
+		}
+	}
+	return
+}
+
+//SearchExtra ... (example: 'fromaddress = 'xxx' or toaddress = 'xxx' )
+func (table *Transactions) SearchExtra(tableMap map[string]interface{}, searchParams *SearchParams, extra string) (list []Transactions) {
+	if sqlQuery, sqlParams := table.sqlSelect(table, tableMap, searchParams); sqlQuery != "" {
+		searchParams.Text = "%" + searchParams.Text + "%"
+		sqlParams = append(sqlParams, searchParams.Text)
+		sqlQuery += fmt.Sprintf("%v lower(%v) like lower($%v) order by id desc ", extra, searchParams.Field, len(sqlParams))
+
+		sqlParams = append(sqlParams, searchParams.Limit)
+		sqlQuery += fmt.Sprintf("limit $%v ", len(sqlParams))
+
+		sqlParams = append(sqlParams, searchParams.Skip)
+		sqlQuery += fmt.Sprintf("offset $%v ", len(sqlParams))
+
 		if err := config.Get().Postgres.Select(&list, sqlQuery, sqlParams...); err != nil {
 			log.Println(err.Error())
 		}
