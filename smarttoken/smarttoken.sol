@@ -76,19 +76,20 @@ contract SmartToken is ERC20, Owned, SafeMath {
     mapping(address => mapping(address => uint)) allowed;
 
 
-    constructor( string memory _symbol, string memory _name, uint _maxTotalSupply, uint _seed  ) public {
+    constructor( string memory _symbol, string memory _name, uint _maxTotalSupply, uint _seed, address _recipient  ) public {
         decimals = 18;
     
-        require( bytes(_name).length > 4, "_name must be 4 characters minimum");
+        require( bytes(_name).length > 3, "_name must be 4 characters minimum");
         require( bytes(_symbol).length > 2, "_symbol must be 3 characters minimum");
-        require( _maxTotalSupply > 10, "_maxTotalSupply must be 100 units minimum");
+        require( _maxTotalSupply > 1, "_maxTotalSupply must be 1 units minimum");
+        require( _recipient == address(0), "_recipient must be set");
 
         name = _name;
         symbol = _symbol;
         curTotalSupply = _seed*(10**uint(decimals));
         maxTotalSupply = _maxTotalSupply*(10**uint(decimals));
-        balances[msg.sender] = curTotalSupply;
-        emit Transfer(address(0), msg.sender, curTotalSupply);
+        balances[_recipient] = curTotalSupply;
+        emit Transfer(address(0), _recipient, curTotalSupply);
     }
 
 
@@ -130,7 +131,9 @@ contract SmartToken is ERC20, Owned, SafeMath {
     }
 
     function approve(address spender, uint tokens) public returns (bool success) {
-        require(!blacklist[msg.sender], "This account has been blacklisted");
+        require(spender == address(0), "Spender address cannot be a zero");
+        require(!blacklist[spender], "This account has been blacklisted");
+
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
@@ -138,6 +141,9 @@ contract SmartToken is ERC20, Owned, SafeMath {
 
 
     function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+        require(!blacklist[msg.sender], "Transaction sender has been blacklisted");
+        require(!blacklist[from], "From address been blacklisted");
+        require(!blacklist[to], "To address has been blacklisted");
 
         balances[from] = safeSub(balances[from], tokens);
         if (msg.sender != owner) {

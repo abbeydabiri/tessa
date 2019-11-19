@@ -31,6 +31,10 @@ const WEI = 1000000000000000000
 //ETHAddressNum ...
 var ETHAddressNum = 0
 
+//ETHGasLimit ...
+var ETHGasLimit = uint64(6009850)
+
+
 //InfuraKey ...
 var InfuraNetwork = "https://rinkeby.infura.io/wvxLGQSZBjP3Ak7iqt8J"
 
@@ -154,7 +158,6 @@ func EthAccountTransfer(amount float64, fromAddress, toAddress common.Address, p
 	}
 
 	fmt.Printf("tx sent: https://rinkeby.etherscan.io/tx/%s \n", signedTx.Hash().Hex())
-
 }
 
 //EthAccountBal ...

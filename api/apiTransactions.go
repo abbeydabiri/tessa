@@ -1,12 +1,22 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"errors"
+	"log"
 	"net/http"
+	"math/big"
 
 	"github.com/justinas/alice"
 
+	"golang.org/x/crypto/sha3"
+    // "github.com/ethereum/go-ethereum"
+    "github.com/ethereum/go-ethereum/common"
+    "github.com/ethereum/go-ethereum/core/types"
+    
+	"tessa/blockchain"
 	"tessa/config"
 	"tessa/database"
 	"tessa/utils"
@@ -108,6 +118,17 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		//From and To Address cannot be the same
 
 		if table.ID == 0 {
+			txHash, err := apiTransactionBroadcast(table)
+			if err != nil {
+				message.Message += "Transaction Broadcast Failed " + err.Error()
+				json.NewEncoder(httpRes).Encode(message)
+				return
+			}
+			tableMap["Reference"] = txHash
+		}
+
+
+		if table.ID == 0 {
 			table.FillStruct(tableMap)
 			table.Create(table.ToMap())
 		} else {
@@ -142,13 +163,10 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 		//Update Balance
 
-		//Transfer
-
-		//Transfer
 
 		message.Body = table.ID
 		message.Code = http.StatusOK
-		message.Message = "Transaction Sent"
+		message.Message = "Transaction Broadcasted"
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }
@@ -181,4 +199,113 @@ func apiTransactionsSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 		message.Body = searchList
 	}
 	json.NewEncoder(httpRes).Encode(message)
+}
+
+
+func apiTransactionBroadcast(transaction database.Transactions) (txHash string, err error) {
+
+	tokenAddressString := ""
+	sqlAddress := "select address from tokens where id = $1 limit 1"
+	config.Get().Postgres.Get(&tokenAddressString, sqlAddress, transaction.TokenID)
+
+	if tokenAddressString == "" {
+		err = errors.New("Token Address is required")
+		log.Println(err.Error())
+		return
+	}
+	
+	if transaction.FromAddress == "" {
+		err = errors.New("From Address is required")
+		log.Println(err.Error())
+		return
+	}
+
+	if transaction.ToAddress == "" {
+		err = errors.New("To Address is required")
+		log.Println(err.Error())
+		return
+	}
+
+	if transaction.Amount <= float64(0.00) {
+		err = errors.New("Amount is required")
+		log.Println(err.Error())
+		return
+	}
+
+	
+
+	if blockchain.Client == nil {
+		blockchain.EthClientDial(blockchain.InfuraNetwork)
+	}
+
+	ownerPrivateKey, ownerAddress := blockchain.EthGenerateKey(config.Get().Mnemonic, 1)
+	nonce, errx := blockchain.Client.PendingNonceAt(context.Background(), ownerAddress)
+	if errx != nil {
+		err = errx
+		log.Println(err.Error())
+		return
+	}
+
+	value := big.NewInt(0)
+	gasPrice, errx := blockchain.Client.SuggestGasPrice(context.Background())
+	if errx != nil {
+		err = errx
+		log.Println(err.Error())
+		return
+	}
+
+	toAddress := common.HexToAddress(transaction.ToAddress)
+	fromAddress := common.HexToAddress(transaction.FromAddress)
+	tokenAddress := common.HexToAddress(tokenAddressString)
+
+	amount := new(big.Int).SetUint64(uint64(transaction.Amount * float64(blockchain.WEI)))
+
+
+	transferFnSignature := []byte("transferFrom(address,address,uint256)")
+	hash := sha3.NewLegacyKeccak256()
+	hash.Write(transferFnSignature)
+	methodID := hash.Sum(nil)[:4]
+
+	paddedFromAddress := common.LeftPadBytes(fromAddress.Bytes(), 32)
+	paddedToAddress := common.LeftPadBytes(toAddress.Bytes(), 32)
+	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
+
+
+	var data []byte
+    data = append(data, methodID...)
+    data = append(data, paddedFromAddress...)
+    data = append(data, paddedToAddress...)
+	data = append(data, paddedAmount...)
+	
+	gasLimit := blockchain.ETHGasLimit // in units
+	// gasLimit, err := blockchain.Client.EstimateGas(context.Background(), ethereum.CallMsg{
+    //     To:   &tokenAddress,
+    //     Data: data,
+    // })
+    // if err != nil {
+	// 	log.Println(err.Error())
+	// 	return
+    // }
+	
+	tx := types.NewTransaction(nonce, tokenAddress, value, gasLimit, gasPrice, data)
+	chainID, err := blockchain.Client.NetworkID(context.Background())
+	if err != nil {
+		log.Println(err.Error())
+		return
+    }
+	
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), ownerPrivateKey)
+    if err != nil {
+		log.Println(err.Error())
+		return
+    }
+
+    err = blockchain.Client.SendTransaction(context.Background(), signedTx)
+    if err != nil {
+		log.Println(err.Error())
+		return
+    }
+
+	txHash = signedTx.Hash().Hex()
+	return
 }

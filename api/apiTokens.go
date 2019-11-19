@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/justinas/alice"
 
@@ -15,6 +16,7 @@ import (
 	"tessa/config"
 	"tessa/database"
 
+	"tessa/utils"
 	"tessa/blockchain"
 	"tessa/smarttoken"
 )
@@ -80,6 +82,12 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			return
 		}
 
+		if len(table.Title) < 4 {
+			message.Message += "Token Title must be 4 characters minimum \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
 		if table.Symbol == "" {
 			message.Message += "Token Symbol is required \n"
 			json.NewEncoder(httpRes).Encode(message)
@@ -104,11 +112,31 @@ func apiTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			return
 		}
 
-		if table.ID == 0 {
 
+		//get the address before loading tokens into it
+		var walletID uint64
+		if claims := utils.VerifyJWT(httpRes, httpReq); claims != nil {
+			if claims["WalletID"] != nil {
+				walletID = uint64(claims["WalletID"].(float64))
+			}
+		}
+
+		walletAddress := ""
+		sqlAddress := "select address from accounts where walletid = $1 limit 1"
+		config.Get().Postgres.Get(&walletAddress, sqlAddress, walletID)
+		
+		if walletAddress == "" {
+			message.Message += "Wallet Address is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+		//get the address before loading tokens into it
+
+
+		if table.ID == 0 {
 			tableMap["Code"] = ""
 			tableMap["Address"] = ""
-			deployedToken, err := apiTokenDeploy(table.Symbol, table.Title, table.MaxTotalSupply, table.Seed)
+			deployedToken, err := apiTokenDeploy(table.Symbol, table.Title, table.MaxTotalSupply, table.Seed, walletAddress)
 			if err == nil {
 				tableMap["Code"] = deployedToken["transaction"]
 				tableMap["Address"] = deployedToken["address"]
@@ -144,7 +172,7 @@ func apiTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 	json.NewEncoder(httpRes).Encode(message)
 }
 
-func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed float64) (token map[string]string, err error) {
+func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed uint64, walletAddress string) (token map[string]string, err error) {
 
 	token = make(map[string]string)
 	if Symbol == "" {
@@ -157,13 +185,20 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed float64) (token ma
 		return
 	}
 
-	if maxtotalsupply <= float64(0) {
+	if walletAddress == "" {
+		err = errors.New("Wallet Address is required")
+		return
+	}
+
+	toAddress := common.HexToAddress(walletAddress)
+
+	if maxtotalsupply <= uint64(0) {
 		err = errors.New("Max Total Supply is required")
 		return
 	}
 
-	Seed := new(big.Int).SetFloat64(seed)
-	MaxTotalSupply := new(big.Int).SetFloat64(maxtotalsupply)
+	Seed := new(big.Int).SetUint64(seed)
+	MaxTotalSupply := new(big.Int).SetUint64(maxtotalsupply)
 
 	if blockchain.Client == nil {
 		blockchain.EthClientDial(blockchain.InfuraNetwork)
@@ -185,12 +220,11 @@ func apiTokenDeploy(Symbol, Name string, maxtotalsupply, seed float64) (token ma
 	auth := bind.NewKeyedTransactor(privateKey)
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)      // in wei
-	auth.GasLimit = uint64(6009850) // in units
+	auth.GasLimit = blockchain.ETHGasLimit // in units
 	gasPrice := big.NewInt(1)
 	auth.GasPrice = gasPrice.Mul(gasPrice, gasPriceTemp)
 
-	// // address, tx, instance, err := smartcontracts.DeploySmartcontracts(auth, client, Symbol, Name, MaxTotalSupply, Seed)
-	address, tx, _, err := smarttoken.DeploySmartToken(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed)
+	address, tx, _, err := smarttoken.DeploySmartToken(auth, blockchain.Client, Symbol, Name, MaxTotalSupply, Seed, toAddress)
 
 	if err != nil {
 		log.Println(err.Error())
