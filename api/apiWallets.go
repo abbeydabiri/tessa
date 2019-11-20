@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"log"
 
 	"github.com/justinas/alice"
 
@@ -128,8 +129,13 @@ func apiWalletsBackup(httpRes http.ResponseWriter, httpReq *http.Request) {
 
 		if !lSkip {
 			tableMap := make(map[string]interface{})
-			tableMap["Mnemonic"], _ = base64.StdEncoding.DecodeString(table.Mnemonic)
+			mnemonicEncrypted, _ := base64.StdEncoding.DecodeString(table.Mnemonic)
+			tableMap["Mnemonic"] = config.Decrypt([]byte(mnemonicEncrypted))
+			// base64.StdEncoding.Decode()
+
+
 			message.Body = tableMap
+			log.Println(tableMap)
 		}
 	}
 	json.NewEncoder(httpRes).Encode(message)
