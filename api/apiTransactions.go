@@ -129,6 +129,7 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 
 		if table.ID == 0 {
+			tableMap["Workflow"] = "pending"
 			table.FillStruct(tableMap)
 			table.Create(table.ToMap())
 		} else {
@@ -136,8 +137,8 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 		}
 
 		//Update Balance
-		sqlDebit := "select sum(amount) from transactions where fromaddress = $1 and tokenid = $2"
-		sqlCredit := "select sum(amount) from transactions where toaddress = $1 and tokenid = $2"
+		sqlDebit := "select sum(amount) from transactions where fromaddress = $1 and tokenid = $2 and workflow = 'success'"
+		sqlCredit := "select sum(amount) from transactions where toaddress = $1 and tokenid = $2 and workflow = 'success'"
 		sqlUpdateBalance := "update accounttokens set balance = $1 where accountid = (select id from accounts where address = $2) and tokenid = $3"
 
 		fromDebit := float64(0)
