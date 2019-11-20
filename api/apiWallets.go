@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"time"
@@ -18,6 +19,7 @@ func apiHandlerWallets(middlewares alice.Chain, router *Router) {
 	router.Post("/api/wallets", middlewares.ThenFunc(apiWalletsPost))
 	router.Post("/api/wallets/search", middlewares.ThenFunc(apiWalletsSearch))
 	router.Post("/api/wallets/select", middlewares.ThenFunc(apiWalletsSelect))
+	router.Get("/api/wallets/backup", middlewares.ThenFunc(apiWalletsBackup))
 }
 
 func apiWalletsSelect(httpRes http.ResponseWriter, httpReq *http.Request) {
@@ -95,6 +97,38 @@ func apiWalletsGet(httpRes http.ResponseWriter, httpReq *http.Request) {
 			delete(tableMap, "UserID")
 			delete(tableMap, "Mnemonic")
 			delete(tableMap, "ProfileID")
+			message.Body = tableMap
+		}
+	}
+	json.NewEncoder(httpRes).Encode(message)
+}
+
+func apiWalletsBackup(httpRes http.ResponseWriter, httpReq *http.Request) {
+	formSearch, message := apiGenericGet(httpRes, httpReq)
+	if message.Code == http.StatusOK {
+		table := database.Wallets{}
+
+		table.GetByID(table.ToMap(), formSearch)
+
+		//check jwtClaims and filter results
+		lSkip := true
+		jwtClaims := utils.VerifyJWT(httpRes, httpReq)
+		if apiBlock("admin", jwtClaims) {
+			lSkip = false
+		} else {
+			var userID uint64
+			if jwtClaims != nil && jwtClaims["ID"] != nil {
+				userID = uint64(jwtClaims["ID"].(float64))
+			}
+			if userID == table.UserID {
+				lSkip = false
+			}
+		}
+		//check jwtClaims and filter results
+
+		if !lSkip {
+			tableMap := make(map[string]interface{})
+			tableMap["Mnemonic"], _ = base64.StdEncoding.DecodeString(table.Mnemonic)
 			message.Body = tableMap
 		}
 	}
