@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"fmt"
 
 	"github.com/justinas/alice"
 
@@ -119,8 +120,15 @@ func apiAccountTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) 
 		if formSearch.Field == "" {
 			formSearch.Field = "Title"
 		}
+
+		sqlExtra := ""
+		if formSearch.Filter["TokenID"] != "" && formSearch.Filter["AccountID"] != "" {
+			sqlExtra = fmt.Sprintf("(tokenid = '%s' and accountid = '%s') and", formSearch.Filter["TokenID"], formSearch.Filter["AccountID"])
+		}
+
+
 		var searchList []interface{}
-		searchResults := table.Search(table.ToMap(), formSearch)
+		searchResults := table.SearchExtra(table.ToMap(), formSearch, sqlExtra)
 		for _, result := range searchResults {
 			tableMap := result.ToMap()
 

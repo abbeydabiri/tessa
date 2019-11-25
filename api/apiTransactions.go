@@ -27,6 +27,7 @@ func apiHandlerTransactions(middlewares alice.Chain, router *Router) {
 	router.Get("/api/transactions", middlewares.ThenFunc(apiTransactionsGet))
 	router.Post("/api/transactions", middlewares.ThenFunc(apiTransactionsPost))
 	router.Post("/api/transactions/search", middlewares.ThenFunc(apiTransactionsSearch))
+	go apiJobCheckTransactions()
 }
 
 func apiTransactionsGet(httpRes http.ResponseWriter, httpReq *http.Request) {
@@ -34,8 +35,16 @@ func apiTransactionsGet(httpRes http.ResponseWriter, httpReq *http.Request) {
 	if message.Code == http.StatusOK {
 		table := database.Transactions{}
 		table.GetByID(table.ToMap(), formSearch)
-
 		tableMap := table.ToMap()
+
+		Token := database.Tokens{}
+		config.Get().Postgres.Get(&Token, "select * from tokens where id = $1 limit 1", table.TokenID)
+		tableMap["Token"] = Token
+
+		objAccountToken := database.AccountTokens{}
+		sqlAccountToken := "select * from accounttokens where tokenid = $1 and accountid = $2 limit 1"
+		config.Get().Postgres.Get(&objAccountToken, sqlAccountToken, table.TokenID, table.AccountID)
+		tableMap["AccountToken"] = objAccountToken
 
 		message.Body = tableMap
 	}
@@ -136,33 +145,33 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			table.Update(tableMap)
 		}
 
-		//Update Balance
-		sqlDebit := "select sum(amount) from transactions where fromaddress = $1 and tokenid = $2 and workflow = 'success'"
-		sqlCredit := "select sum(amount) from transactions where toaddress = $1 and tokenid = $2 and workflow = 'success'"
-		sqlUpdateBalance := "update accounttokens set balance = $1 where accountid = (select id from accounts where address = $2) and tokenid = $3"
+		// //Update Balance
+		// sqlDebit := "select sum(amount) from transactions where fromaddress = $1 and tokenid = $2 and workflow = 'success'"
+		// sqlCredit := "select sum(amount) from transactions where toaddress = $1 and tokenid = $2 and workflow = 'success'"
+		// sqlUpdateBalance := "update accounttokens set balance = $1 where accountid = (select id from accounts where address = $2) and tokenid = $3"
 
-		fromDebit := float64(0)
-		config.Get().Postgres.Get(&fromDebit, sqlDebit, table.FromAddress, table.TokenID)
+		// fromDebit := float64(0)
+		// config.Get().Postgres.Get(&fromDebit, sqlDebit, table.FromAddress, table.TokenID)
 
-		fromCredit := float64(0)
-		config.Get().Postgres.Get(&fromCredit, sqlCredit, table.FromAddress, table.TokenID)
+		// fromCredit := float64(0)
+		// config.Get().Postgres.Get(&fromCredit, sqlCredit, table.FromAddress, table.TokenID)
 
-		fromBalance := fromCredit - fromDebit
-		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, fromBalance, table.FromAddress, table.TokenID); err != nil {
-			println(err.Error())
-		}
+		// fromBalance := fromCredit - fromDebit
+		// if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, fromBalance, table.FromAddress, table.TokenID); err != nil {
+		// 	log.Println(err.Error())
+		// }
 
-		toDebit := float64(0)
-		config.Get().Postgres.Get(&toDebit, sqlDebit, table.ToAddress, table.TokenID)
+		// toDebit := float64(0)
+		// config.Get().Postgres.Get(&toDebit, sqlDebit, table.ToAddress, table.TokenID)
 
-		toCredit := float64(0)
-		config.Get().Postgres.Get(&toCredit, sqlCredit, table.ToAddress, table.TokenID)
+		// toCredit := float64(0)
+		// config.Get().Postgres.Get(&toCredit, sqlCredit, table.ToAddress, table.TokenID)
 
-		toBalance := toCredit - toDebit
-		if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, toBalance, table.ToAddress, table.TokenID); err != nil {
-			println(err.Error())
-		}
-		//Update Balance
+		// toBalance := toCredit - toDebit
+		// if _, err := config.Get().Postgres.Exec(sqlUpdateBalance, toBalance, table.ToAddress, table.TokenID); err != nil {
+		// 	log.Println(err.Error())
+		// }
+		// //Update Balance
 
 		message.Body = table.ID
 		message.Code = http.StatusOK
@@ -194,6 +203,12 @@ func apiTransactionsSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 			Token := database.Tokens{}
 			config.Get().Postgres.Get(&Token, "select * from tokens where id = $1 limit 1", result.TokenID)
 			tableMap["Token"] = Token
+
+			objAccountToken := database.AccountTokens{}
+			sqlAccountToken := "select * from accounttokens where tokenid = $1 and accountid = $2 limit 1"
+			config.Get().Postgres.Get(&objAccountToken, sqlAccountToken, result.TokenID, result.AccountID)
+			tableMap["AccountToken"] = objAccountToken
+
 			searchList = append(searchList, tableMap)
 		}
 		message.Body = searchList

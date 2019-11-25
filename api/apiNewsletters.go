@@ -25,7 +25,7 @@ func apiHandlerNewsletters(middlewares alice.Chain, router *Router) {
 	router.Post("/api/newsletter/duplicate", middlewares.ThenFunc(apiNewsletterDuplicate))
 
 	router.GET("/fav/:jwtoken/logo.ico", apiNewsLetterOpenned)
-	// go apiJobSendingNewsletters()
+	// go apiJobCheckTransactions()
 }
 
 func apiNewsLetterOpenned(httpRes http.ResponseWriter, httpReq *http.Request, httpParams httprouter.Params) {

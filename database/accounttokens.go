@@ -81,3 +81,23 @@ func (table *AccountTokens) Search(tableMap map[string]interface{}, searchParams
 	}
 	return
 }
+
+//SearchExtra ... (example: 'tokenid = id and accountid = id )
+func (table *AccountTokens) SearchExtra(tableMap map[string]interface{}, searchParams *SearchParams, extra string) (list []AccountTokens) {
+	if sqlQuery, sqlParams := table.sqlSelect(table, tableMap, searchParams); sqlQuery != "" {
+		searchParams.Text = "%" + searchParams.Text + "%"
+		sqlParams = append(sqlParams, searchParams.Text)
+		sqlQuery += fmt.Sprintf("%v lower(%v) like lower($%v) order by id desc ", extra, searchParams.Field, len(sqlParams))
+
+		sqlParams = append(sqlParams, searchParams.Limit)
+		sqlQuery += fmt.Sprintf("limit $%v ", len(sqlParams))
+
+		sqlParams = append(sqlParams, searchParams.Skip)
+		sqlQuery += fmt.Sprintf("offset $%v ", len(sqlParams))
+
+		if err := config.Get().Postgres.Select(&list, sqlQuery, sqlParams...); err != nil {
+			log.Println(err.Error())
+		}
+	}
+	return
+}
