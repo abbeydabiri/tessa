@@ -16,7 +16,7 @@ type Contacts struct {
 
 	Mobile   string `sql:"index"`
 	Fullname string `sql:"index"`
-	Address string `sql:"index"`
+	Address  string `sql:"index"`
 
 	UserID uint64
 }

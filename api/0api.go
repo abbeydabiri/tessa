@@ -228,7 +228,6 @@ func apiSecurePost(httpRes http.ResponseWriter, httpReq *http.Request) (tableMap
 				tableMap["Updatedby"] = uint64(claims["ID"].(float64))
 			}
 		}
-
 	}
 
 	message.Code = http.StatusOK

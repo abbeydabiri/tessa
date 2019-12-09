@@ -42,6 +42,11 @@ func apiDashboardGet(httpRes http.ResponseWriter, httpReq *http.Request) {
 		tableMap["Address"] = account.Address
 		tableMap["WalletID"] = account.WalletID
 
+		naira := float64(0)
+		sqlQueryBalance := "select sum(at.balance * t.price) as naira from accounttokens as at left join tokens t on at.tokenid = t.id where at.walletid = $1"
+		config.Get().Postgres.Get(&naira, sqlQueryBalance, account.WalletID)
+		tableMap["Balance"] = naira
+
 		message.Body = tableMap
 
 	}
