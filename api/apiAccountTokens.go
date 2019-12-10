@@ -2,8 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	"net/http"
 	"fmt"
+	"net/http"
 
 	"github.com/justinas/alice"
 
@@ -15,6 +15,7 @@ import (
 func apiHandlerAccountTokens(middlewares alice.Chain, router *Router) {
 	router.Get("/api/accounttokens", middlewares.ThenFunc(apiAccountTokensGet))
 	router.Post("/api/accounttokens", middlewares.ThenFunc(apiAccountTokensPost))
+	router.Post("/api/accounttokens/send", middlewares.ThenFunc(apiAccountTokensPostSend))
 	router.Post("/api/accounttokens/search", middlewares.ThenFunc(apiAccountTokensSearch))
 }
 
@@ -113,6 +114,76 @@ func apiAccountTokensPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 	json.NewEncoder(httpRes).Encode(message)
 }
 
+func apiAccountTokensPostSend(httpRes http.ResponseWriter, httpReq *http.Request) {
+	tableMap, message := apiGenericPost(httpRes, httpReq)
+	if message.Code == http.StatusOK {
+		table := database.AccountTokens{}
+		table.FillStruct(tableMap)
+
+		message.Code = http.StatusInternalServerError
+		if table.Title == "" {
+			message.Message += "Title is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.Code == "" {
+			message.Message += "Address is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		sendTable := database.Accounts{}
+		config.Get().Postgres.Get(&sendTable, "select id, walletid, userid from accounts where address = $1", table.Code)
+		if sendTable.ID > uint64(0) {
+			table.AccountID = sendTable.ID
+			table.WalletID = sendTable.WalletID
+		}
+
+		if table.WalletID == 0 {
+			message.Message += "Wallet ID is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.AccountID == 0 {
+			message.Message += "Account ID is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+
+		if table.TokenID == 0 {
+			message.Message += "Token ID is required \n"
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+		message.Code = http.StatusOK
+
+		//If Token Account already exists do not replace
+		accountID := uint64(0)
+		sqlCheck := "select id from accounttokens where tokenid = $1 and walletid = $2 and accountid = $3 limit 1"
+		config.Get().Postgres.Get(&accountID, sqlCheck, table.TokenID, table.WalletID, table.AccountID)
+		if accountID > uint64(0) {
+			message.Body = accountID
+			message.Message = ""
+			json.NewEncoder(httpRes).Encode(message)
+			return
+		}
+		//If Token Account already exists do not replace
+
+		if table.ID == 0 {
+			table.FillStruct(tableMap)
+			table.Balance = float64(0.0)
+			table.Create(table.ToMap())
+		} else {
+			table.Update(tableMap)
+		}
+		message.Body = table.ID
+		message.Message = "Token Account Created!!"
+	}
+	json.NewEncoder(httpRes).Encode(message)
+}
+
 func apiAccountTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) {
 	formSearch, message := apiGenericSearch(httpRes, httpReq)
 	if message.Code == http.StatusOK {
@@ -125,7 +196,6 @@ func apiAccountTokensSearch(httpRes http.ResponseWriter, httpReq *http.Request) 
 		if formSearch.Filter["TokenID"] != "" && formSearch.Filter["AccountID"] != "" {
 			sqlExtra = fmt.Sprintf("(tokenid = '%s' and accountid = '%s') and", formSearch.Filter["TokenID"], formSearch.Filter["AccountID"])
 		}
-
 
 		var searchList []interface{}
 		searchResults := table.SearchExtra(table.ToMap(), formSearch, sqlExtra)
