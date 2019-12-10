@@ -179,7 +179,7 @@ func apiAccountTokensPostSend(httpRes http.ResponseWriter, httpReq *http.Request
 			table.Update(tableMap)
 		}
 		message.Body = table.ID
-		message.Message = "Token Account Created!!"
+		message.Message = ""
 	}
 	json.NewEncoder(httpRes).Encode(message)
 }
