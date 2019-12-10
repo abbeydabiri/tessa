@@ -1199,18 +1199,19 @@ SELECT pg_catalog.setval('accounts_id_seq', 5, true);
 COPY accounttokens (id, createdby, updatedby, createdate, updatedate, code, title, workflow, description, balance, walletid, accountid, tokenid) FROM stdin;
 7	0	0	2019-11-20 17:07:24.332935	2019-11-20 17:07:24.332936		CANTEEN			7169.11000000000058	1	1	28
 8	0	0	2019-11-20 20:27:41.25267	2019-11-20 20:27:41.252671		Experience Centre			5602	1	1	21
-9	0	0	2019-11-20 23:05:21.010704	2019-11-20 23:05:21.010706		Bitcoin			2930	1	1	27
 10	0	0	2019-11-20 23:46:30.572961	2019-11-20 23:46:30.572963		LIFE			25000	1	1	26
 12	0	0	2019-11-22 12:13:10.659109	2019-11-22 12:13:10.65911		KDSG-TOKEN			520	1	1	30
 13	0	0	2019-11-22 14:41:56.322349	2019-11-22 14:41:56.322351		KEMART			1350	1	1	31
 14	0	0	2019-11-25 13:31:11.328333	2019-11-25 13:31:11.328334		VR-ACCESS			22.2199999999999989	2	2	29
 15	0	0	2019-11-25 13:32:28.530989	2019-11-25 13:32:28.53099		Bitcoin			60	2	2	27
-16	0	0	2019-11-26 08:56:15.282191	2019-11-26 08:56:15.282193		FAT-ALBERT			6	1	1	32
 17	0	0	2019-11-26 09:02:22.389497	2019-11-26 09:02:22.389498		FAT-ALBERT			700	3	3	32
 18	0	0	2019-11-29 15:28:14.693754	2019-11-29 15:28:14.693755		YINKSONS			666	1	1	33
 11	0	0	2019-11-21 16:15:35.09772	2019-11-21 16:15:35.097721		VR-ACCESS			14053.0799999999999	1	1	29
 19	0	0	2019-12-06 18:22:04.395501	2019-12-06 18:22:04.395502		VR-ACCESS			700	5	5	29
 20	0	0	2019-12-06 18:26:45.406855	2019-12-06 18:26:45.406856		REJOICE TOKEN			1100	5	5	34
+9	0	0	2019-11-20 23:05:21.010704	2019-11-20 23:05:21.010706		Bitcoin			5430	1	1	27
+21	0	0	2019-12-10 12:36:02.421123	2019-12-10 12:36:02.421125	0x117EF77dF65b562921713A6558362cFB7b2544f1	FAT-ALBERT			0.5	2	2	32
+16	0	0	2019-11-26 08:56:15.282191	2019-11-26 08:56:15.282193		FAT-ALBERT			5.5	1	1	32
 \.
 
 
@@ -1218,7 +1219,7 @@ COPY accounttokens (id, createdby, updatedby, createdate, updatedate, code, titl
 -- Name: accounttokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: tessa
 --
 
-SELECT pg_catalog.setval('accounttokens_id_seq', 20, true);
+SELECT pg_catalog.setval('accounttokens_id_seq', 21, true);
 
 
 --
@@ -1272,6 +1273,7 @@ COPY contacts (id, createdby, updatedby, createdate, updatedate, code, title, wo
 1	0	0	2019-10-25 05:34:32.224802	2019-11-13 18:07:12.077954				Jovial Fun	james@john.com	James	John	08079623414	 James John	x0002302033233	0
 2	0	0	2019-11-29 10:17:01.802439	2019-11-29 10:17:01.80244				friendly friend	eze.kaduna@mailinator.com	Eze	Kaduna	08079623414	 Eze Kaduna	home	0
 3	0	0	2019-11-29 10:51:53.856314	2019-11-29 11:23:52.02319				Brotherly Brother	moyojon@mailinator.com	Moyo	Jon	07019294812	 Moyo Jon	0x117EF77dF65b562921713A6558362cFB7b2544f1	1
+4	0	0	2019-12-10 12:56:05.006335	2019-12-10 12:56:05.006336						Abbey	Block	08079623414	 Abbey Block	0x613BE8857d6398536F59cba5f75CEA6E453e285F	2
 \.
 
 
@@ -1279,7 +1281,7 @@ COPY contacts (id, createdby, updatedby, createdate, updatedate, code, title, wo
 -- Name: contacts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: tessa
 --
 
-SELECT pg_catalog.setval('contacts_id_seq', 3, true);
+SELECT pg_catalog.setval('contacts_id_seq', 4, true);
 
 
 --
@@ -1493,6 +1495,15 @@ COPY hits (id, createdby, updatedby, createdate, updatedate, code, title, workfl
 174	0	0	2019-12-05 13:33:28.962452	2019-12-05 13:33:28.962453	08079623414	User Login: [08079623414] - User Verified	enabled			172.16.100.57:55374	Mozilla/5.0 (iPad; CPU OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.1 Mobile/15E148 Safari/604.1
 175	0	0	2019-12-06 18:21:22.850251	2019-12-06 18:21:22.850252	08080208567	New Client Signup: [08080208567] - Wallet Created!! - Please Log In	enabled			172.16.100.57:55745	Mozilla/5.0 (iPad; CPU OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.1 Mobile/15E148 Safari/604.1
 176	0	0	2019-12-06 18:21:29.900468	2019-12-06 18:21:29.900469	08080208567	User Login: [08080208567] - User Verified	enabled			172.16.100.57:55748	Mozilla/5.0 (iPad; CPU OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.1 Mobile/15E148 Safari/604.1
+177	0	0	2019-12-09 22:23:30.123788	2019-12-09 22:23:30.123789	08079623414	User Login: [08079623414] - User Verified	enabled			[::1]:59757	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+178	0	0	2019-12-09 22:24:31.008277	2019-12-09 22:24:31.008279	08079623414	User Logout: [08079623414]	enabled			[::1]:59991	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+179	0	0	2019-12-09 22:24:43.223757	2019-12-09 22:24:43.223758	08079623414	User Login: [08079623414] - User Verified	enabled			[::1]:59991	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+180	0	0	2019-12-09 23:24:58.624509	2019-12-09 23:24:58.624511	08079623414	User Login: [08079623414] - User Verified	enabled			[::1]:54322	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+181	0	0	2019-12-10 00:25:06.309168	2019-12-10 00:25:06.309169	08079623414	User Login: [08079623414] - User Verified	enabled			[::1]:54797	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+182	0	0	2019-12-10 09:18:35.742713	2019-12-10 09:18:35.742715	08079623414	User Login: [08079623414] - User Verified	enabled			[::1]:62186	Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1
+183	0	0	2019-12-10 10:57:19.318154	2019-12-10 10:57:19.318154	08079623414	User Login: [08079623414] - User Verified	enabled			[::1]:54712	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+184	0	0	2019-12-10 11:59:00.938728	2019-12-10 11:59:00.938728	08079623414	User Login: [08079623414] - User Verified	enabled			[::1]:49573	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
+185	0	0	2019-12-10 12:18:51.536977	2019-12-10 12:18:51.536978	07019294812	User Login: [07019294812] - User Verified	enabled			[::1]:56011	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36
 \.
 
 
@@ -1500,7 +1511,7 @@ COPY hits (id, createdby, updatedby, createdate, updatedate, code, title, workfl
 -- Name: hits_id_seq; Type: SEQUENCE SET; Schema: public; Owner: tessa
 --
 
-SELECT pg_catalog.setval('hits_id_seq', 176, true);
+SELECT pg_catalog.setval('hits_id_seq', 185, true);
 
 
 --
@@ -1714,6 +1725,9 @@ COPY transactions (id, createdby, updatedby, createdate, updatedate, code, title
 59	0	0	2019-12-06 18:22:06.523916	2019-12-06 18:22:30.735621	mint	Token Purchase	success		0	0x321544ae90046e635496e70edc319500fc72c5430b09d957b6c4d6251c8db2b4	0x23ACD33f3C5d1Da8317C873632b11C74162e92F9	0xDD12eE0FF07308F4CC335f1012DBd9221B38ea5c	700	5	29	5
 60	0	0	2019-12-06 18:26:46.656583	2019-12-06 18:27:01.178224	mint	Token Purchase	success		0	0x7897e4fc1a6fcc485f1eadab9564a375ad7f51731a9422b1d0fe01292c24798a	0x33F80530bB63bF578B5C372Ec5c0F1af08873e54	0xDD12eE0FF07308F4CC335f1012DBd9221B38ea5c	1000	5	34	5
 61	0	0	2019-12-06 18:27:30.622909	2019-12-06 18:27:41.760034	mint	Token Purchase	success		0	0x0be29806f88171a484c50b3b5d47b9529f43e5649d76a5bb5d1e54c13dcace7e	0x33F80530bB63bF578B5C372Ec5c0F1af08873e54	0xDD12eE0FF07308F4CC335f1012DBd9221B38ea5c	100	5	34	5
+62	0	0	2019-12-10 00:07:42.331179	2019-12-10 00:07:59.185486	mint	Token Purchase	success		0	0x2398727c2d477a89f7f1742fa02bb70fcc492e73c53bc4a69d5b9094ec102acc	0xEC99567bA9D0770Ad25c0003a9451a2A43Af4F8e	0x613BE8857d6398536F59cba5f75CEA6E453e285F	2500	1	27	1
+63	0	0	2019-12-10 12:54:08.696046	2019-12-10 12:54:20.881073	transfer	Token Transfer	success		0	0xc80ad69bb4f1fef261b4c03d6950613c5ef3815bb4f11639fe99d3e658666361	0x613BE8857d6398536F59cba5f75CEA6E453e285F	0x117EF77dF65b562921713A6558362cFB7b2544f1	1	1	32	1
+64	0	0	2019-12-10 12:56:33.496666	2019-12-10 12:57:01.646008	transfer	Token Transfer	success		0	0x32ce4cfb070100890946e6751b306e3617ca338f09e3e936f0774fab9edaecf6	0x117EF77dF65b562921713A6558362cFB7b2544f1	0x613BE8857d6398536F59cba5f75CEA6E453e285F	0.5	2	32	2
 \.
 
 
@@ -1721,7 +1735,7 @@ COPY transactions (id, createdby, updatedby, createdate, updatedate, code, title
 -- Name: transactions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: tessa
 --
 
-SELECT pg_catalog.setval('transactions_id_seq', 61, true);
+SELECT pg_catalog.setval('transactions_id_seq', 64, true);
 
 
 --
@@ -1729,10 +1743,10 @@ SELECT pg_catalog.setval('transactions_id_seq', 61, true);
 --
 
 COPY users (id, createdby, updatedby, createdate, updatedate, code, title, workflow, description, failedmax, failed, profileid, username, password) FROM stdin;
-2	0	0	2019-11-25 13:29:49.888261	2019-12-05 13:32:54.56505			enabled		4	0	2	07019294812	wgCu26YoZ6lIdw/3Wy3E4AoCPb+5nPjD+i1y9uclc0I/RIQb6aAIEK+by7tjwswWlmqp21JroYHhhch6gsdCYJgj/JWFuYoBfHTM6g==
-1	0	0	2019-10-25 04:32:32.162372	2019-12-05 13:33:28.938361			enabled		4	0	1	08079623414	f+LRemqW27iQsSKp3RDTzQoCPb+5nPjI90VO1u9iZzlkfq8A6/kuMJyjioZjydlS/3aWxn12/Pbe+sdtodFfX5FS9eGz2K8oNjDyzA==
 5	0	0	2019-12-06 18:21:22.791113	2019-12-06 18:21:29.872052			enabled		4	0	5	08080208567	DFuSrgEbZuxensaVSTz49goCPb+5nPjs+XdS/INoXEVXIqQolPt2PYejipkCpfILo3Wk001CuqjP/KdOg88Jc8oT3LqMj6lbAkiWjw==
 3	0	0	2019-11-26 09:01:09.483373	2019-11-26 09:01:15.009612			enabled		4	0	3	08133694347	DQS+OGHZBNbp9gFF2wmzJgoCPb+5nPj3ykht4o8rcT92a/Ua+OYUE4aRzdcozO4ymUqr1QkBoPa5j6ElgbV0c4YRyeai34kpJHby/g==
+1	0	0	2019-10-25 04:32:32.162372	2019-12-10 11:59:00.91472			enabled		4	0	1	08079623414	f+LRemqW27iQsSKp3RDTzQoCPb+5nPjI90VO1u9iZzlkfq8A6/kuMJyjioZjydlS/3aWxn12/Pbe+sdtodFfX5FS9eGz2K8oNjDyzA==
+2	0	0	2019-11-25 13:29:49.888261	2019-12-10 12:18:51.509915			enabled		4	0	2	07019294812	wgCu26YoZ6lIdw/3Wy3E4AoCPb+5nPjD+i1y9uclc0I/RIQb6aAIEK+by7tjwswWlmqp21JroYHhhch6gsdCYJgj/JWFuYoBfHTM6g==
 4	0	0	2019-11-29 14:26:07.007732	2019-11-29 14:26:15.43292			enabled		4	0	4	08160302602	sp7wF+APJ2bfuIlnBDnwTgoCPb+5nPjZx3Rs/OEyfCc/SI5e1etqaK+t1L44v/UQuGnB4W1p64LBhrpVs6lUU4g+zJSNkr8JYFXx6g==
 \.
 
