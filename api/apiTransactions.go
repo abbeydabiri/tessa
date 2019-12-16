@@ -124,7 +124,6 @@ func apiTransactionsPost(httpRes http.ResponseWriter, httpReq *http.Request) {
 			json.NewEncoder(httpRes).Encode(message)
 			return
 		}
-
 		//From and To Address cannot be the same
 
 		if table.ID == 0 {
@@ -273,10 +272,13 @@ func apiTransactionBroadcast(transaction database.Transactions) (txHash string, 
 	tokenAddress := common.HexToAddress(tokenAddressString)
 
 	fnSignatureString := ""
-	if strings.ContainsAny(strings.ToLower(transaction.Code), "mint") {
+
+	switch strings.ToLower(transaction.Code) {
+	case "mint":
 		fnSignatureString = "mintTokens(address,uint256)"
 		amount = new(big.Int).SetUint64(uint64(transaction.Amount))
-	} else {
+
+	default:
 		fnSignatureString = "transferFrom(address,address,uint256)"
 		amount = new(big.Int).SetUint64(uint64(transaction.Amount * float64(blockchain.WEI)))
 	}
