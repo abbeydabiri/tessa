@@ -210,7 +210,6 @@ func apiAuthSignup(httpRes http.ResponseWriter, httpReq *http.Request) {
 		"WalletID":  wallet.ID,
 		"ProfileID": profile.ID,
 	})
-
 	//generate account from wallet mnemonic
 
 	message.Code = http.StatusOK
