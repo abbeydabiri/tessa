@@ -402,9 +402,22 @@ func apiAuthOTPSend(httpRes http.ResponseWriter, httpReq *http.Request) {
 			sqlQuery := "select id, username from users where username = $1 limit 1"
 			config.Get().Postgres.Get(&userExists, sqlQuery, user.Username)
 
-			if userExists.ID != 0 {
-				statusMessage = "Mobile number is registered"
-			} else {
+			lSendOTP := true
+
+			switch user.Code {
+			case "reset":
+				if userExists.ID == 0 {
+					lSendOTP = false
+					statusMessage = "Mobile number is not registered"
+				}
+			default:
+				if userExists.ID != 0 {
+					lSendOTP = false
+					statusMessage = "Mobile number is registered"
+				}
+			}
+
+			if lSendOTP {
 				expirationTime := time.Duration(5)
 				statusCode = http.StatusOK
 				statusMessage = fmt.Sprintf("A One Time Pin has been sent to you - it expires in %d minutes", expirationTime)
@@ -422,7 +435,7 @@ func apiAuthOTPSend(httpRes http.ResponseWriter, httpReq *http.Request) {
 						"Code":        otpCODE,
 						"Title":       "One Time Pin (OTP)",
 						"Mobile":      user.Username,
-						"UserID":      user.ID,
+						"UserID":      userExists.ID,
 						"Workflow":    "active",
 						"Description": smsMessage + " [sent to] " + user.Username,
 						"Expirydate":  time.Now().Add(+(time.Minute * expirationTime)).Format(utils.TimeFormat),
@@ -502,12 +515,15 @@ func apiAuthPinReset(httpRes http.ResponseWriter, httpReq *http.Request) {
 
 		if user.Username != "" {
 			activation := database.Activations{}
-			sqlQueryOTP := "select * from activations where workflow = 'verified' and userid = $1 and code = $2 limit 1"
-			config.Get().Postgres.Get(&activation, sqlQueryOTP, user.ID, userOTP.Code)
+			sqlQueryOTP := "select * from activations where workflow = 'verified' and mobile = $1 and code = $2 limit 1"
+			config.Get().Postgres.Get(&activation, sqlQueryOTP, user.Username, userOTP.Code)
 
 			if activation.Code != "" {
-				seconds := utils.GetDifferenceInSeconds("", activation.Expirydate)
-				if seconds > 0 {
+				secondsExpired := utils.GetDifferenceInSeconds("", activation.Expirydate)
+				if secondsExpired > 0 {
+					//set otp to expired
+					statusMessage += " - Expired OTP"
+				} else {
 					//set otp to verified
 					statusMessage = "PIN Reset Successful"
 
@@ -518,11 +534,9 @@ func apiAuthPinReset(httpRes http.ResponseWriter, httpReq *http.Request) {
 					user.FailedMax = 5
 					user.Workflow = "enabled"
 
-					statusCode = http.StatusOK
+					user.Update(user.ToMap())
 
-				} else {
-					//set otp to expired
-					statusMessage += " - Expired OTP"
+					statusCode = http.StatusOK
 				}
 				activation.Workflow = "expired"
 				activation.Update(activation.ToMap())
