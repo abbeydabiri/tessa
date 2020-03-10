@@ -34,9 +34,9 @@ var ETHAddressNum = 0
 //ETHGasLimit ...
 var ETHGasLimit = uint64(6009850)
 
-
 //InfuraKey ...
-var InfuraNetwork = "https://rinkeby.infura.io/wvxLGQSZBjP3Ak7iqt8J"
+//var InfuraNetwork = "https://rinkeby.infura.io/wvxLGQSZBjP3Ak7iqt8J"
+var InfuraNetwork = "https://rinkeby.infura.io/v3/349d1750fa35425d9625f0fa1e03895e"
 
 const infuraKey = "wvxLGQSZBjP3Ak7iqt8J"
 const infuraKovan = "https://kovan.infura.io"

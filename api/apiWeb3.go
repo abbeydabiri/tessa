@@ -27,9 +27,12 @@ func apiWeb3(httpRes http.ResponseWriter, httpReq *http.Request) {
 	httpReq.Body = ioutil.NopCloser(bytes.NewReader(body))
 
 	// create a new url from the raw RequestURI sent by the client
-	url := fmt.Sprintf("%s://%s%s", "https", "rinkeby.infura.io", "/wvxLGQSZBjP3Ak7iqt8J")
+	// url := fmt.Sprintf("%s://%s%s", "https", "rinkeby.infura.io", "/wvxLGQSZBjP3Ak7iqt8J")
+	url := fmt.Sprintf("%s://%s%s", "https", "rinkeby.infura.io", "/ws/v3/349d1750fa35425d9625f0fa1e03895e")
 
 	proxyReq, err := http.NewRequest(httpReq.Method, url, bytes.NewReader(body))
+
+	println(url)
 
 	// We may want to filter some headers, otherwise we could just use a shallow copy
 	// proxyReq.Header = httpReq.Header
