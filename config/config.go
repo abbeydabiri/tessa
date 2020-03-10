@@ -2,11 +2,9 @@ package config
 
 import (
 	"bytes"
-	"encoding/base64"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 	"unicode"
@@ -23,8 +21,8 @@ import (
 )
 
 const (
-	keySize   = 32
-	nonceSize = 24
+	keySize    = 32
+	nounceSize = 24
 )
 
 //Config structure
@@ -45,7 +43,7 @@ type Config struct {
 	Smslive247 string
 	Twilio     map[string]string
 
-	Mnemonic string
+	Mnemonic, KeyNounceText string
 }
 
 var config Config
@@ -140,10 +138,14 @@ func Init(yamlConfig []byte) {
 	// Smslive247 API
 	config.Smslive247 = viper.GetString("smslive247")
 	// Smslive247 API
-	
-	// Mnemonic API
+
+	// Mnemonic
 	config.Mnemonic = viper.GetString("mnemonic")
-	// Mnemonic API
+	// Mnemonic
+
+	// KeyNounceText
+	config.KeyNounceText = viper.GetString("keynouncetext")
+	// KeyNounceText
 }
 
 //Encrypt ...
@@ -169,28 +171,33 @@ func spaceRemove(str string) string {
 	}, str)
 }
 
-func keyNounce() (key *[keySize]byte, nonce *[nonceSize]byte) {
-	fullPath := filepath.Dir(os.Args[0])
-	fullPath = spaceRemove(fullPath)
-	fullPath = strings.Replace(fullPath, "/", "", -1)
-	fullPath = strings.Replace(fullPath, "\\", "", -1)
+func keyNounce() (key *[keySize]byte, nonce *[nounceSize]byte) {
+	// fullPath := filepath.Dir(os.Args[0])
+	// fullPath = spaceRemove(fullPath)
+	// fullPath = strings.Replace(fullPath, "/", "", -1)
+	// fullPath = strings.Replace(fullPath, "\\", "", -1)
 
-	fullPath = base64.StdEncoding.EncodeToString([]byte(fullPath))
-	nPower := int(60 / len(fullPath))
-	if len(fullPath) < 60 {
-		nCount := 0
-		for nPower > nCount {
-			fullPath += fullPath
-			nCount++
-		}
-		fullPath = fullPath[0:60]
-	}
+	// fullPath = base64.StdEncoding.EncodeToString([]byte(fullPath))
+	// nPower := int(60 / len(fullPath))
+	// if len(fullPath) < 60 {
+	// 	nCount := 0
+	// 	for nPower > nCount {
+	// 		fullPath += fullPath
+	// 		nCount++
+	// 	}
+	// 	fullPath = fullPath[0:60]
+	// }
+
+	fullPath := Get().KeyNounceText
 
 	key = new([keySize]byte)
-	copy(key[:], []byte(fullPath[0:32])[:keySize])
+	copy(key[:], []byte(fullPath)[:keySize])
 
-	nonce = new([nonceSize]byte)
-	copy(nonce[:], []byte(fullPath[0:32][0:24])[:nonceSize])
+	nonce = new([nounceSize]byte)
+	copy(nonce[:], []byte(fullPath)[keySize:(keySize+nounceSize)])
+
+	// log.Println(fullPath[0:32])
+	// log.Println(fullPath[0:32][0:24])
 
 	return
 }
