@@ -11,13 +11,15 @@ encryption_keys:
   public: public.pem
   private: private.pem
 
+
 dbconfig:
   hostname: localhost
   database: tessa
   password: tessa
   username: tessa
-  port: 5432  
-
+  sslmode: disable
+  port: 5432
+  
 twilio:
   sender: TESSA
   authtoken: ca00d38665da68c28e0c6c5f1ad96093

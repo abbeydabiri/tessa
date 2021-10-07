@@ -116,11 +116,14 @@ func Init(yamlConfig []byte) {
 	//SQL Connection for SQLITE
 
 	//SQL Connection for POSTGRESQL
-	if config.dbConfig = viper.GetStringMapString("dbconfig"); len(config.dbConfig) == 5 {
-		postgresConn := "host=%s port=%s dbname=%s user=%s password=%s sslmode=disable connect_timeout=1"
+	if config.dbConfig = viper.GetStringMapString("dbconfig"); len(config.dbConfig) >= 5 {
+		postgresConn := "host=%s port=%s dbname=%s user=%s password=%s sslmode=%s connect_timeout=1"
 		postgresConn = fmt.Sprintf(postgresConn, config.dbConfig["hostname"], config.dbConfig["port"],
-			config.dbConfig["database"], config.dbConfig["username"], config.dbConfig["password"])
+			config.dbConfig["database"], config.dbConfig["username"], config.dbConfig["password"], config.dbConfig["sslmode"])
 		config.Postgres, err = sqlx.Open("postgres", postgresConn)
+		if err != nil {
+			log.Fatalf("Error Connecting Database %v", err)
+		}
 		err = config.Postgres.Ping()
 		log.Printf("Connecting Database..")
 		if err != nil {

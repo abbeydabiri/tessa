@@ -22,8 +22,9 @@ func main() {
 	// flag.Parse()
 
 	utils.Logger("")
-	config.Init(nil) //Init Config.yaml
+	config.Init(nil) //Init Config.yam
 
+	time.Sleep(time.Second * 2)
 	go blockchain.EthClientDial("")
 	api.StartRouter()
 	//

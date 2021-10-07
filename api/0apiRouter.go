@@ -91,10 +91,15 @@ func wrapHandler(httpHandler http.Handler) httprouter.Handle {
 //StartRouter ...
 func StartRouter() {
 
-	totalUsers := 0
-	if config.Get().Postgres.Get(&totalUsers, "select count(id) from users"); totalUsers == 0 {
-		utils.SaveFileToPath("adminurl", "config", []byte(config.Get().Adminurl))
-		database.Init("/all")
+	lExists := false
+	sqlTable := "SELECT EXISTS (SELECT FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relname = $1 AND c.relkind = 'r')"
+	if err := config.Get().Postgres.Get(&lExists, sqlTable, "users"); err != nil {
+		log.Println(err.Error())
+	} else {
+		if !lExists {
+			utils.SaveFileToPath("adminurl", "config", []byte(config.Get().Adminurl))
+			database.Init("/all")
+		}
 	}
 
 	middlewares := alice.New()

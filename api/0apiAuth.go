@@ -444,8 +444,10 @@ func apiAuthOTPSend(httpRes http.ResponseWriter, httpReq *http.Request) {
 				if len(user.Username) > 10 {
 					user.Username = user.Username[len(user.Username)-10:]
 				}
-				user.Username = "+234" + user.Username
-				go utils.SendSMSTwilio("", user.Username, smsMessage)
+				// user.Username = "+234" + user.Username
+				// go utils.SendSMSTwilio("", user.Username, smsMessage)
+
+				statusMessage = fmt.Sprintf("Your One Time Pin is [%v] ", otpCODE)
 			}
 		}
 	}
